@@ -1,0 +1,87 @@
+{
+  "appId": "com.nmtool.app",
+  "productName": "牛马工具集",
+  "copyright": "Copyright © 2025 牛马工具集",
+  "directories": {
+    "output": "release-new",
+    "buildResources": "build"
+  },
+  "files": [
+    "dist/**/*",
+    "electron-main.cjs",
+    "electron-preload.cjs",
+    "package.json"
+  ],
+  "asarUnpack": [
+    "build/**/*"
+  ],
+  "extraResources": [
+    {
+      "from": "build/icon.ico",
+      "to": "icon.ico"
+    },
+    {
+      "from": "build/icon.png",
+      "to": "icon.png"
+    }
+  ],
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      },
+      {
+        "target": "portable",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "build/icon.ico",
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "signAndEditExecutable": false,
+    "verifyUpdateCodeSignature": false,
+    "requestedExecutionLevel": "asInvoker",
+    "legalTrademarks": "牛马工具集"
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "allowElevation": true,
+    "createDesktopShortcut": "always",
+    "createStartMenuShortcut": true,
+    "shortcutName": "牛马工具集",
+    "installerIcon": "build/icon.ico",
+    "uninstallerIcon": "build/icon.ico",
+    "installerHeaderIcon": "build/icon.ico",
+    "displayLanguageSelector": false,
+    "language": "2052",
+    "perMachine": false,
+    "deleteAppDataOnUninstall": false,
+    "include": "build/installer.nsh",
+    "runAfterFinish": true,
+    "menuCategory": true
+  },
+  "portable": {
+    "artifactName": "${productName}-${version}-Portable.${ext}"
+  },
+  "mac": {
+    "target": "dmg",
+    "category": "public.app-category.developer-tools"
+  },
+  "linux": {
+    "target": "AppImage",
+    "category": "Development"
+  },
+  "extraMetadata": {
+    "name": "nm-tool",
+    "productName": "牛马工具集",
+    "version": "1.0.0",
+    "description": "牛马工具集 - 实用开发工具合集",
+    "author": {
+      "name": "牛马工具集",
+      "email": "luojiawei24@163.com"
+    },
+    "copyright": "Copyright © 2025 牛马工具集"
+  }
+}
+

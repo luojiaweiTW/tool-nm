@@ -1,0 +1,142 @@
+/**
+ * Design Tokens - Pop Art × Vaporwave/Synthwave Neon
+ * 霓虹海报风设计变量
+ */
+
+:root {
+  /* ========== 颜色：背景与面板（霓虹夜色风 - 优化版）========== */
+  --color-bg: #0d1229;           /* 主背景 - 稍微提亮 */
+  --color-panel: #1a2340;        /* 面板背景 - 提亮 */
+  --color-panel-light: #222d4a;  /* 浅色面板 - 新增 */
+  --color-panel-hover: #293558;  /* 悬停态 - 更亮 */
+  --color-border: #3a4a6b;       /* 边框 - 提亮 */
+  --color-border-light: #4a5a7b; /* 浅色边框 - 新增 */
+  
+  /* ========== 颜色：文本（增强对比度）========== */
+  --color-text: #f0f8ff;         /* 主文本 - 更亮 */
+  --color-text-secondary: #c8e0f5; /* 次要文本 - 更亮 */
+  --color-muted: #90b4d8;        /* 弱化文本 - 提亮 */
+  --color-text-disabled: #5a7a9a; /* 禁用文本 - 稍亮 */
+  
+  /* ========== 霓虹色彩（增强浅色系）========== */
+  --neon-pink: #ff2aa1;
+  --neon-pink-light: #ff6ec8;      /* 更亮的浅粉 */
+  --neon-pink-lighter: #ff9ed8;    /* 超浅粉 - 新增 */
+  --neon-pink-dark: #d61e82;
+  
+  --neon-cyan: #21e6ff;
+  --neon-cyan-light: #6ff3ff;      /* 更亮的浅青 */
+  --neon-cyan-lighter: #9ff7ff;    /* 超浅青 - 新增 */
+  --neon-cyan-dark: #00bcd9;
+  
+  --neon-purple: #9b5cff;
+  --neon-purple-light: #ba84ff;    /* 更亮的浅紫 */
+  --neon-purple-lighter: #d4a8ff;  /* 超浅紫 - 新增 */
+  --neon-purple-dark: #7a3fe8;
+  
+  --neon-yellow: #ffe600;
+  --neon-yellow-light: #ffef4d;    /* 更亮的浅黄 */
+  --neon-yellow-lighter: #fff68f;  /* 超浅黄 - 新增 */
+  --neon-yellow-dark: #ccb700;
+  
+  --neon-lime: #d0ff00;
+  --neon-lime-light: #e0ff4d;      /* 浅绿 */
+  --neon-lime-lighter: #ecff8f;    /* 超浅绿 - 新增 */
+  --neon-lime-dark: #a6cc00;
+  
+  /* ========== 辅助颜色（浅色系）========== */
+  --color-success: #30ff93;        /* 成功绿 */
+  --color-success-light: #6fffb0;  /* 浅成功绿 */
+  --color-warning: #ffa030;        /* 警告橙 */
+  --color-warning-light: #ffb860;  /* 浅警告橙 */
+  --color-danger: #ff3055;         /* 危险红 */
+  --color-danger-light: #ff6080;   /* 浅危险红 */
+  --color-info: #5090ff;           /* 信息蓝 */
+  --color-info-light: #80b0ff;     /* 浅信息蓝 */
+  
+  /* ========== 辉光效果 (Box Shadow) - 超强霓虹发光 ========== */
+  --glow-cyan: 0 0 20px #21e6ff, 0 0 40px #21e6ffaa, 0 0 60px #21e6ff66, 0 0 80px #21e6ff33;
+  --glow-cyan-strong: 0 0 25px #21e6ff, 0 0 50px #21e6ffcc, 0 0 75px #21e6ff88, 0 0 100px #21e6ff44;
+  
+  --glow-pink: 0 0 20px #ff2aa1, 0 0 40px #ff2aa1aa, 0 0 60px #ff2aa166, 0 0 80px #ff2aa133;
+  --glow-pink-strong: 0 0 25px #ff2aa1, 0 0 50px #ff2aa1cc, 0 0 75px #ff2aa188, 0 0 100px #ff2aa144;
+  
+  --glow-purple: 0 0 20px #9b5cff, 0 0 40px #9b5cffaa, 0 0 60px #9b5cff66, 0 0 80px #9b5cff33;
+  --glow-purple-strong: 0 0 25px #9b5cff, 0 0 50px #9b5cffcc, 0 0 75px #9b5cff88, 0 0 100px #9b5cff44;
+  
+  --glow-yellow: 0 0 20px #ffe600, 0 0 40px #ffe600aa, 0 0 60px #ffe60066;
+  --glow-lime: 0 0 20px #d0ff00, 0 0 40px #d0ff00aa, 0 0 60px #d0ff0066;
+  
+  /* ========== 阴影 ========== */
+  --shadow-sm: 0 4px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.4);
+  --shadow-strong: 0 12px 28px rgba(0, 0, 0, 0.45);
+  
+  /* ========== 间距 ========== */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-2xl: 32px;
+  --spacing-3xl: 40px;
+  --spacing-4xl: 48px;
+  
+  /* ========== 圆角 ========== */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  
+  /* ========== 描边 ========== */
+  --border-width-normal: 2px;
+  --border-width-thick: 3px;
+  --border-width-thin: 1px;
+  
+  /* ========== 字体 ========== */
+  --font-family-base: 'Inter', 'Source Sans Pro', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-display: 'Orbitron', 'Russo One', 'Audiowide', monospace;
+  --font-family-mono: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  
+  --font-size-xs: 12px;    /* 从 11px 提升到 12px，更清晰 */
+  --font-size-sm: 13px;    /* 从 12px 提升到 13px */
+  --font-size-base: 14px;  /* 保持 */
+  --font-size-lg: 16px;    /* 保持 */
+  --font-size-xl: 18px;    /* 保持 */
+  --font-size-2xl: 24px;   /* 保持 */
+  --font-size-3xl: 32px;   /* 保持 */
+  
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.7;
+  
+  /* ========== 过渡 ========== */
+  --transition-fast: 140ms;
+  --transition-base: 180ms;
+  --transition-slow: 220ms;
+  --transition-timing: cubic-bezier(0.2, 0.8, 0.2, 1);
+  
+  /* ========== Z-Index 层级 ========== */
+  --z-base: 1;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-modal-backdrop: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-tooltip: 700;
+  
+  /* ========== 侧栏尺寸 ========== */
+  --sidebar-width-expanded: 260px;
+  --sidebar-width-collapsed: 72px;
+  
+  /* ========== 头部高度 ========== */
+  --header-height: 64px;
+}
+

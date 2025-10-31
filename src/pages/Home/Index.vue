@@ -1,0 +1,677 @@
+<template>
+  <div class="home-page">
+    <!-- 欢迎横幅 -->
+    <div class="hero-section">
+      <div class="hero-content">
+        <!-- Logo 头像 -->
+        <div class="hero-logo">
+          <img src="/build/icon.png" alt="牛马工具" class="logo-image" />
+        </div>
+        <h1 class="hero-title">
+          <span class="neon-text">牛马工具</span>
+        </h1>
+        <p class="hero-subtitle">功能强大的在线工具集合 · 简洁高效 · 开箱即用</p>
+        <p class="hero-slogan">牛马人用牛马工具做好牛马 💪</p>
+        
+        <!-- 全局搜索 -->
+        <div class="search-box">
+          <div class="search-icon-wrapper">
+            <i class="i-mdi-magnify search-icon" />
+          </div>
+          <input
+            v-model="searchKeyword"
+            type="text"
+            placeholder="搜索工具... (Ctrl+K)"
+            class="search-input"
+            @keyup.enter="handleSearch"
+          />
+          <div v-if="searchKeyword" class="search-clear" @click="searchKeyword = ''">
+            <i class="i-mdi-close" />
+          </div>
+        </div>
+
+        <!-- 快速统计 -->
+        <div class="stats-row">
+          <div class="stat-item">
+            <i class="i-mdi-tools" />
+            <span class="stat-number">{{ totalTools }}</span>
+            <span class="stat-label">个工具</span>
+          </div>
+          <div class="stat-item">
+            <i class="i-mdi-folder-multiple" />
+            <span class="stat-number">{{ categories.length }}</span>
+            <span class="stat-label">个分类</span>
+          </div>
+          <div class="stat-item">
+            <i class="i-mdi-update" />
+            <span class="stat-label">持续更新</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 工具分类展示 -->
+    <div class="categories-section">
+      <h2 class="section-title">
+        <i class="i-mdi-view-grid" />
+        工具分类
+      </h2>
+      
+      <div class="categories-grid">
+        <div
+          v-for="category in filteredCategories"
+          :key="category.id"
+          class="category-card"
+          @click="handleCategoryClick(category)"
+        >
+          <div class="category-header">
+            <i :class="category.icon" class="category-icon" />
+            <h3 class="category-name">{{ category.title }}</h3>
+            <span class="category-count">{{ category.children.length }}</span>
+          </div>
+          <div class="category-tools">
+            <div
+              v-for="tool in category.children"
+              :key="tool.path"
+              class="tool-tag"
+              @click.stop="navigateToTool(tool.path)"
+            >
+              <i :class="tool.icon" />
+              {{ tool.title }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 特色功能 -->
+    <div class="features-section">
+      <h2 class="section-title">
+        <i class="i-mdi-sparkles" />
+        特色功能
+      </h2>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <i class="i-mdi-lightning-bolt feature-icon" />
+          <h3>快速高效</h3>
+          <p>所有工具本地运行，无需上传数据，保护隐私</p>
+        </div>
+        <div class="feature-card">
+          <i class="i-mdi-palette feature-icon" />
+          <h3>霓虹风格</h3>
+          <p>独特的赛博朋克霓虹设计，带来酷炫体验</p>
+        </div>
+        <div class="feature-card">
+          <i class="i-mdi-monitor-multiple feature-icon" />
+          <h3>双端支持</h3>
+          <p>Web版和桌面版，随时随地使用</p>
+        </div>
+        <div class="feature-card">
+          <i class="i-mdi-update feature-icon" />
+          <h3>持续更新</h3>
+          <p>不断添加新工具，优化用户体验</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const searchKeyword = ref('')
+
+// 工具分类数据
+const categories = [
+  {
+    id: 'text-tools',
+    title: '📝 文本处理',
+    icon: 'i-mdi-file-document-edit',
+    children: [
+      { path: '/tools/json-formatter', title: 'JSON 格式化', icon: 'i-mdi-code-json', description: '格式化、压缩、校验 JSON 数据' },
+      { path: '/tools/xml-yaml', title: 'XML/YAML 转换', icon: 'i-mdi-file-xml-box', description: 'XML、YAML、JSON 格式互转' },
+      { path: '/tools/sql-formatter', title: 'SQL 格式化', icon: 'i-mdi-database-edit', description: 'SQL 语句格式化与美化' },
+      { path: '/tools/text-diff', title: '文本对比', icon: 'i-mdi-file-compare', description: '文本差异对比工具' },
+      { path: '/tools/regex', title: '正则表达式', icon: 'i-mdi-regex', description: '正则表达式测试与匹配' },
+      { path: '/tools/doc-to-markdown', title: '文档转 Markdown', icon: 'i-mdi-file-document-arrow-right', description: 'Word 文档转 Markdown' },
+    ]
+  },
+  {
+    id: 'encode-tools',
+    title: '🔐 编码加密',
+    icon: 'i-mdi-lock',
+    children: [
+      { path: '/tools/base64', title: 'Base64 编解码', icon: 'i-mdi-file-code-outline', description: 'Base64 编码解码工具' },
+      { path: '/tools/url-encoder', title: 'URL 编码', icon: 'i-mdi-link-variant', description: 'URL 编码与解码工具' },
+      { path: '/tools/hash', title: '哈希计算', icon: 'i-mdi-fingerprint', description: 'MD5、SHA 等哈希计算' },
+      { path: '/tools/encrypt', title: '加密解密', icon: 'i-mdi-lock-outline', description: 'AES、DES、RSA 加密解密' },
+      { path: '/tools/unicode', title: 'Unicode 转换', icon: 'i-mdi-format-letter-case', description: 'Unicode 编码转换' },
+      { path: '/tools/encoding', title: '编码格式转换', icon: 'i-mdi-file-swap', description: 'UTF-8、GBK 等编码互转' },
+    ]
+  },
+  {
+    id: 'dev-tools',
+    title: '🔧 开发工具',
+    icon: 'i-mdi-tools',
+    children: [
+      { path: '/tools/uuid', title: 'UUID 生成', icon: 'i-mdi-identifier', description: '生成 UUID/GUID' },
+      { path: '/tools/random-generator', title: '随机数据生成', icon: 'i-mdi-dice-multiple', description: '生成随机字符串、数据' },
+      { path: '/tools/number-base', title: '进制转换', icon: 'i-mdi-numeric', description: '十进制、十六进制转换' },
+      { path: '/tools/qrcode', title: '二维码生成', icon: 'i-mdi-qrcode', description: '生成多种类型二维码' },
+    ]
+  },
+  {
+    id: 'time-tools',
+    title: '⏰ 时间调度',
+    icon: 'i-mdi-clock',
+    children: [
+      { path: '/tools/timestamp', title: '时间戳转换', icon: 'i-mdi-clock-digital', description: '时间戳与日期转换' },
+      { path: '/tools/cron', title: 'Cron 表达式', icon: 'i-mdi-calendar-clock', description: 'Cron 表达式生成器' },
+    ]
+  },
+  {
+    id: 'java-tools',
+    title: '💻 Java 工具',
+    icon: 'i-mdi-language-java',
+    children: [
+      { path: '/tools/json-to-java', title: 'JSON 转 Java', icon: 'i-mdi-code-braces', description: 'JSON 转 Java 实体类' },
+      { path: '/tools/exception-parser', title: '异常堆栈分析', icon: 'i-mdi-bug', description: 'Java 异常堆栈美化' },
+      { path: '/tools/maven-search', title: 'Maven 依赖', icon: 'i-mdi-package-variant', description: 'Maven 依赖坐标查询' },
+    ]
+  },
+  {
+    id: 'network-tools',
+    title: '🌐 网络工具',
+    icon: 'i-mdi-web',
+    children: [
+      { path: '/tools/http-client', title: 'HTTP 测试', icon: 'i-mdi-api', description: 'HTTP 请求测试工具' },
+      { path: '/tools/ip-query', title: 'IP 查询', icon: 'i-mdi-ip-network', description: 'IP 地址查询' },
+      { path: '/tools/ssh', title: 'SSH 连接', icon: 'i-mdi-console', description: '连接远程服务器' },
+      { path: '/tools/port-scanner', title: '端口扫描', icon: 'i-mdi-lan-connect', description: '扫描服务器开放端口' },
+      { path: '/tools/command-history', title: '命令历史', icon: 'i-mdi-history', description: '终端命令管理' },
+    ]
+  },
+  {
+    id: 'utility-tools',
+    title: '🎯 实用工具',
+    icon: 'i-mdi-apps',
+    children: [
+      { path: '/tools/clipboard-history', title: '剪贴板历史', icon: 'i-mdi-clipboard-text-clock', description: '自动记录复制的文本' },
+      { path: '/tools/screenshot', title: '截图工具', icon: 'i-mdi-camera-outline', description: '快速截取屏幕或窗口' },
+      { path: '/tools/system-monitor', title: '系统监控', icon: 'i-mdi-monitor-dashboard', description: '实时监控系统资源' },
+      { path: '/tools/jwt', title: 'JWT 解析', icon: 'i-mdi-key-chain', description: 'JWT Token 解析' },
+      { path: '/tools/knowledge', title: '知识库', icon: 'i-mdi-book-open-page-variant', description: '个人知识管理' },
+      { path: '/tools/snippets', title: '代码片段', icon: 'i-mdi-code-braces-box', description: '管理代码片段' },
+      { path: '/tools/entertainment', title: '热榜聚合', icon: 'i-mdi-trending-up', description: '实时热门话题' },
+    ]
+  },
+]
+
+// 计算总工具数
+const totalTools = computed(() => {
+  return categories.reduce((sum, cat) => sum + cat.children.length, 0)
+})
+
+// 过滤分类
+const filteredCategories = computed(() => {
+  if (!searchKeyword.value) return categories
+  
+  const keyword = searchKeyword.value.toLowerCase()
+  return categories
+    .map(cat => ({
+      ...cat,
+      children: cat.children.filter(tool => 
+        tool.title.toLowerCase().includes(keyword) ||
+        tool.description.toLowerCase().includes(keyword)
+      )
+    }))
+    .filter(cat => cat.children.length > 0)
+})
+
+// 导航到工具
+function navigateToTool(path: string) {
+  router.push(path)
+}
+
+// 分类点击
+function handleCategoryClick(category: any) {
+  if (category.children.length > 0) {
+    navigateToTool(category.children[0].path)
+  }
+}
+
+// 搜索
+function handleSearch() {
+  if (filteredCategories.value.length > 0 && filteredCategories.value[0].children.length > 0) {
+    navigateToTool(filteredCategories.value[0].children[0].path)
+  }
+}
+
+// 快捷键
+function handleKeyDown(e: KeyboardEvent) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault()
+    document.querySelector<HTMLInputElement>('.search-input')?.focus()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown)
+})
+</script>
+
+<style scoped>
+.home-page {
+  min-height: 100%;
+  padding: var(--spacing-xl);
+  overflow-y: auto;
+}
+
+/* 欢迎横幅 */
+.hero-section {
+  position: relative;
+  padding: var(--spacing-4xl) var(--spacing-xl);
+  margin-bottom: var(--spacing-4xl);
+  background: linear-gradient(135deg, rgba(33, 230, 255, 0.1) 0%, rgba(155, 92, 255, 0.1) 100%);
+  border: 2px solid var(--neon-cyan);
+  border-radius: var(--radius-xl);
+  box-shadow: 
+    inset 0 0 60px rgba(33, 230, 255, 0.1),
+    0 0 30px rgba(33, 230, 255, 0.3);
+  overflow: hidden;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(33, 230, 255, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 80% 50%, rgba(155, 92, 255, 0.2) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  text-align: center;
+  z-index: 1;
+}
+
+.hero-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.logo-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px solid var(--neon-cyan);
+  box-shadow: 
+    0 0 20px rgba(33, 230, 255, 0.6),
+    0 0 40px rgba(33, 230, 255, 0.4),
+    inset 0 0 20px rgba(33, 230, 255, 0.2);
+  animation: logoFloat 3s ease-in-out infinite;
+  object-fit: cover;
+}
+
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.hero-title {
+  font-size: 3.5em;
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--spacing-md);
+  font-family: var(--font-family-display);
+}
+
+.neon-text {
+  font-size: 3rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-purple) 50%, var(--neon-pink) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 
+    0 0 10px rgba(33, 230, 255, 0.8),
+    0 0 20px rgba(33, 230, 255, 0.6),
+    0 0 30px rgba(33, 230, 255, 0.4),
+    0 0 40px rgba(155, 92, 255, 0.4);
+  animation: neonPulse 2s ease-in-out infinite;
+}
+
+@keyframes neonPulse {
+  0%, 100% {
+    text-shadow: 
+      0 0 10px rgba(33, 230, 255, 0.8),
+      0 0 20px rgba(33, 230, 255, 0.6),
+      0 0 30px rgba(33, 230, 255, 0.4);
+  }
+  50% {
+    text-shadow: 
+      0 0 15px rgba(33, 230, 255, 1),
+      0 0 30px rgba(33, 230, 255, 0.8),
+      0 0 45px rgba(33, 230, 255, 0.6),
+      0 0 60px rgba(155, 92, 255, 0.6);
+  }
+}
+
+.hero-subtitle {
+  font-size: var(--font-size-xl);
+  color: var(--color-muted);
+  margin-bottom: var(--spacing-md);
+}
+
+.hero-slogan {
+  font-size: 1.1rem;
+  color: var(--neon-yellow);
+  margin-top: var(--spacing-md);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-shadow: 
+    0 0 10px rgba(208, 255, 0, 0.6),
+    0 0 20px rgba(208, 255, 0, 0.4);
+  animation: sloganGlow 2s ease-in-out infinite;
+}
+
+@keyframes sloganGlow {
+  0%, 100% {
+    text-shadow: 
+      0 0 10px rgba(208, 255, 0, 0.6),
+      0 0 20px rgba(208, 255, 0, 0.4);
+  }
+  50% {
+    text-shadow: 
+      0 0 15px rgba(208, 255, 0, 0.8),
+      0 0 30px rgba(208, 255, 0, 0.6),
+      0 0 45px rgba(208, 255, 0, 0.4);
+  }
+}
+
+/* 搜索框 */
+.search-box {
+  position: relative;
+  max-width: 600px;
+  margin: 0 auto var(--spacing-2xl);
+  display: flex;
+  align-items: center;
+}
+
+.search-icon-wrapper {
+  position: absolute;
+  left: var(--spacing-xl);
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.search-icon {
+  font-size: 1.5em;
+  color: var(--neon-cyan);
+  display: block;
+}
+
+.search-input {
+  width: 100%;
+  padding: var(--spacing-lg) var(--spacing-xl) var(--spacing-lg) 60px;
+  background: rgba(10, 14, 39, 0.6);
+  border: 2px solid var(--neon-cyan);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
+  outline: none;
+  transition: all var(--transition-base);
+  box-shadow: inset 0 0 20px rgba(33, 230, 255, 0.1);
+}
+
+.search-input:focus {
+  border-color: var(--neon-cyan-lighter);
+  box-shadow: 
+    inset 0 0 30px rgba(33, 230, 255, 0.2),
+    0 0 20px rgba(33, 230, 255, 0.4);
+}
+
+.search-clear {
+  position: absolute;
+  right: var(--spacing-lg);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.search-clear:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* 统计行 */
+.stats-row {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-2xl);
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: rgba(33, 230, 255, 0.1);
+  border: 1px solid var(--neon-cyan);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-lg);
+}
+
+.stat-item i {
+  font-size: 1.5em;
+  color: var(--neon-cyan);
+}
+
+.stat-number {
+  font-size: 1.5em;
+  font-weight: var(--font-weight-bold);
+  color: var(--neon-cyan);
+  font-family: var(--font-family-mono);
+}
+
+.stat-label {
+  color: var(--color-muted);
+}
+
+/* 分类网格 */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-xl);
+  color: var(--neon-lime);
+  font-family: var(--font-family-display);
+}
+
+.section-title i {
+  font-size: 1.2em;
+}
+
+.categories-section {
+  margin-bottom: var(--spacing-4xl);
+}
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--spacing-xl);
+}
+
+.category-card {
+  padding: var(--spacing-xl);
+  background: linear-gradient(135deg, var(--color-panel) 0%, var(--color-panel-light) 100%);
+  border: 2px solid var(--neon-lime);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: inset 0 0 30px rgba(208, 255, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.category-card:hover {
+  border-color: var(--neon-lime-light);
+  transform: translateY(-4px);
+  box-shadow: 
+    inset 0 0 40px rgba(208, 255, 0, 0.1),
+    0 8px 30px rgba(208, 255, 0, 0.3);
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.category-icon {
+  font-size: 2em;
+  color: var(--neon-lime);
+}
+
+.category-name {
+  flex: 1;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.category-count {
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: rgba(208, 255, 0, 0.2);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--neon-lime);
+}
+
+.category-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  flex: 1;
+  align-content: flex-start;
+}
+
+.tool-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: rgba(208, 255, 0, 0.1);
+  border: 1px solid rgba(208, 255, 0, 0.3);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  transition: all var(--transition-base);
+}
+
+.tool-tag:hover {
+  background: rgba(208, 255, 0, 0.2);
+  border-color: var(--neon-lime);
+  transform: scale(1.05);
+}
+
+.tool-tag i {
+  color: var(--neon-lime);
+}
+
+/* 特色功能 */
+.features-section {
+  margin-bottom: var(--spacing-4xl);
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--spacing-xl);
+}
+
+.feature-card {
+  padding: var(--spacing-2xl);
+  text-align: center;
+  background: linear-gradient(135deg, var(--color-panel) 0%, var(--color-panel-light) 100%);
+  border: 2px solid var(--neon-pink);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+}
+
+.feature-card:hover {
+  border-color: var(--neon-pink-light);
+  transform: translateY(-4px);
+  box-shadow: 
+    inset 0 0 30px rgba(255, 42, 161, 0.1),
+    0 8px 30px rgba(255, 42, 161, 0.3);
+}
+
+.feature-icon {
+  font-size: 3em;
+  color: var(--neon-pink);
+  margin-bottom: var(--spacing-md);
+}
+
+.feature-card h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--spacing-sm);
+  color: var(--neon-pink);
+}
+
+.feature-card p {
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+  margin: 0;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2em;
+  }
+  
+  .categories-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

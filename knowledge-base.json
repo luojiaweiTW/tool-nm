@@ -1,0 +1,125 @@
+{
+  "items": [
+    {
+      "type": "text",
+      "title": "🚨 SSH 连接问题的全面排查流程",
+      "content": "# 第一步：检查网络和服务状态\n## 检查 SSH 服务是否运行\nsudo systemctl status sshd\n\n## 检查 SSH 是否在监听\nsudo netstat -tlnp | grep :22\n## 或\nsudo ss -tlnp | grep :22\n# 第二步：检查各种防火墙\n## 1. 检查 firewalld\nsudo firewall-cmd --list-all | grep ssh\nsudo firewall-cmd --query-service=ssh\n\n## 2. 检查 iptables\nsudo iptables -L -n | grep :22\n\n## 3. 检查 SELinux 是否阻止\nsudo grep sshd /var/log/audit/audit.log | tail -5\n\n## 4. 检查 TCP Wrappers\ncat /etc/hosts.allow\ncat /etc/hosts.deny\n# 第三步：应急处理\n## 临时禁用 firewalld\nsudo systemctl stop firewalld\n\n## 临时清空 iptables 规则\nsudo iptables -F\n\n## 临时禁用 SELinux\nsudo setenforce 0\n# 推荐做法：\n## 永久允许 SSH（推荐）\nsudo firewall-cmd --permanent --add-service=ssh\nsudo firewall-cmd --reload",
+      "categoryId": "cat_1760583428479_yn2iwarql",
+      "tags": [],
+      "description": "",
+      "isPinned": false,
+      "isFavorite": false,
+      "id": "item_1760583587624_s4kgau4p5",
+      "createdAt": "2025-10-16T02:59:47.624Z",
+      "updatedAt": "2025-10-16T03:20:11.596Z"
+    },
+    {
+      "type": "text",
+      "title": "centos7查看防火墙状态",
+      "content": "## 1. firewalld (默认防火墙)\n# 查看运行状态\nsudo systemctl status firewalld\n\n# 查看详细规则\nsudo firewall-cmd --list-all\n\n# 查看是否运行\nsudo firewall-cmd --state\n\n## 2. iptables (传统防火墙)\n# 查看 iptables 规则\nsudo iptables -L -n\n\n# 查看 NAT 规则\nsudo iptables -t nat -L -n\n\n# 查看详细规则（带行号）\nsudo iptables -L -n --line-numbers\n\n# 检查 iptables 服务状态\nsudo systemctl status iptables\n\n## SELinux (安全增强Linux)\n# 查看 SELinux 状态\ngetenforce\n# 或\nsestatus\n\n# 查看详细状态\nsestatus -v\n\n# 检查当前模式\ncat /etc/selinux/config | grep SELINUX=\n\n## 4. TCP Wrappers (hosts.allow/deny)\n# 查看允许规则\ncat /etc/hosts.allow\n\n# 查看拒绝规则\ncat /etc/hosts.deny",
+      "categoryId": "cat_1760583428479_yn2iwarql",
+      "tags": [
+        "tip"
+      ],
+      "description": "",
+      "isPinned": false,
+      "isFavorite": false,
+      "id": "item_1760583528334_e63mugmzy",
+      "createdAt": "2025-10-16T02:58:48.334Z",
+      "updatedAt": "2025-10-16T02:58:48.334Z"
+    },
+    {
+      "type": "text",
+      "title": "sslFree证书申请步奏",
+      "content": "地址： https://freessl.cn/certlist \n例如申请 idcms.shkingweb.com 单域名\n**1. 文件申请。**\n  把对应的txt文件放到 服务器上如： /etc/nginx/conf.d/fileauth.txt \n** nginx配置如下： idcms.shkingweb.com.conf **\n```javascript\nserver {\n        listen 443;\n        server_name idcms.shkingweb.com;\n        ssl                  on;\n        ssl_certificate      /etc/nginx/cert/idcms.shkingweb.com_chain.pem;\n        ssl_certificate_key  /etc/nginx/cert/idcms.shkingweb.com_key.key;\n        ssl_session_timeout 5m;\n\n        client_max_body_size 512M;\n        location / {\n                proxy_set_header   \"Access-Control-Allow-Origin\"  \"*\" ;\n                proxy_pass http://47.96.133.219:80/;\n        }\n}\n\nserver {\n    listen 80;\n    server_name idcms.shkingweb.com;\n\n    location ~* ^/\\.well-known/pki-validation/fileauth\\.txt$ {\n        alias /etc/nginx/conf.d/fileauth.txt;\n        default_type text/plain; \n    }\n}\n```\n**重启 nginx -s reload**\n\n## 2. dns申请 \n# 配置后，从freessl网站获取\nacme.sh --issue -d *.shuangrenxu.com --dns dns_dp --server https://acme.freessl.cn/v2/DV90/directory/9dp2wnbdtavd2hjoklvk\n\nacme.sh --install-cert -d *.shuangrenxu.com \\\n--key-file /etc/nginx/cert/shuangrenxu_key.pem \\\n--fullchain-file /etc/nginx/cert/shuangrenxu_cert.pem \\\n--reloadcmd \"sudo nginx -s reload\"\n\n# 编辑crontab，一个服务器只需要配置一次，他会自动检查所有证书\ncrontab -e\n\n#然后插入任务\n\n#https证书自动续期\n11 0 * * * \"/root/.acme.sh\"/acme.sh --cron --home \"/root/.acme.sh\" > /dev/null",
+      "categoryId": "cat_1760581026825_uhqxr04a0",
+      "tags": [
+        "tip"
+      ],
+      "description": "",
+      "isPinned": false,
+      "isFavorite": false,
+      "id": "item_1760581214075_ld12arkwu",
+      "createdAt": "2025-10-16T02:20:14.074Z",
+      "updatedAt": "2025-10-16T02:39:42.552Z"
+    },
+    {
+      "type": "url",
+      "title": "baidu",
+      "content": "http://www.baidu.com",
+      "categoryId": "cat_1760520660053_p1c468kd1",
+      "tags": [],
+      "description": "",
+      "isPinned": false,
+      "isFavorite": false,
+      "url": "http://www.baidu.com",
+      "id": "item_1760521990528_vym0g50bd",
+      "createdAt": "2025-10-15T09:53:10.527Z",
+      "updatedAt": "2025-10-15T09:53:10.527Z"
+    },
+    {
+      "type": "text",
+      "title": "mysql",
+      "content": "mysql 存储过程\n\n#批量插入\ndelimiter $\ncreate PROCEDURE test()\nBEGIN\n\ndeclare c int DEFAULT 0;\nwhile  c<500 do\nINSERT INTO `z_dev_stsmr_room`.`mr_screen_list_data`( `associated_id`, `data_key`, `data_value`, `data_field1`, `type`, `date_time`) VALUES ( 2, '浦东大楼20999机房', '4', '1', 3, '202211');\n\nset c=c+1;\nend  while;\nend $\ncall test();\n\n\nmysql  常用语句模板\n随机数： SELECT 50+RAND() * 1000  # 获取50-1050之间的随机数；\n修改数据1： update  mr_building_summary   set  electricity_total= (RAND(500) * 10000)\n修改数据2： update  mr_building_summary a1, mr_building_summary a2 set a1.electricity_it_equipment = (a2.electricity_total/1.47) where a1.id =a2.id\n删除数据1：delete from mr_room where id=1\n\n\n# 获取整个表字段 并且用逗号拼\nSELECT GROUP_CONCAT(COLUMN_NAME SEPARATOR \",\")\nFROM information_schema.COLUMNS\nWHERE TABLE_SCHEMA = 'kingweb_idcms_test' AND TABLE_NAME = 'base_device';\nsystemctl stop mysqld\n\nmysql 恢复数据   就是把备份的数据恢复\n mysqld --user=root --defaults-file=/kingweb/mysql/my.cnf --datadir=/kingweb/data_bak/mysql_bak/kingweb/data_bak/mysql_bak/20241203-2025\n\n mysqld --user=root --defaults-file=/kingweb/mysql/my.cnf --datadir=/home/20250821-0100/kingweb/data_bak/mysql_bak/20250821-0100\n-- dtadir即备份文件目录\n mysqld --defaults-file=/kingweb/mysql/my.cnf --user=root --datadir=/home/mysql/kingweb/data_bak/mysql_bak/20250911-0100\n小唐: 08-21 16:42:38\n/kingweb/mysql/my.cnf 这个文件里面也指定了data路径\n\n小唐: 08-21 16:42:57\n下次你可以这样，data目录下的东西去掉，把你这个复制进去\n\n小唐: 08-21 16:43:03\n然后直接服务启动\n\n\n-- dtadir即备份文件目录\nmysqld --defaults-file=/kingweb/mysql/my.cnf --user=root --datadir=/kingweb/data_bak/taizhou/20250123-0100\n\n\n\n",
+      "categoryId": "cat_1760179665744_xp8ftfkyv",
+      "tags": [
+        "important"
+      ],
+      "description": "",
+      "isPinned": false,
+      "isFavorite": false,
+      "id": "item_1760179697083_k3vv559di",
+      "createdAt": "2025-10-11T10:48:17.083Z",
+      "updatedAt": "2025-10-11T10:48:17.083Z"
+    }
+  ],
+  "categories": [
+    {
+      "name": "数据库",
+      "icon": "Document",
+      "color": "#f41c04",
+      "id": "cat_1760179665744_xp8ftfkyv"
+    },
+    {
+      "name": "kingweb",
+      "icon": "Document",
+      "color": "#f8b250",
+      "id": "cat_1760520660053_p1c468kd1"
+    },
+    {
+      "name": "nginx",
+      "icon": "Document",
+      "color": "#43f20e",
+      "id": "cat_1760581026825_uhqxr04a0"
+    },
+    {
+      "name": "服务器",
+      "icon": "Document",
+      "color": "#64e40e",
+      "id": "cat_1760583428479_yn2iwarql"
+    }
+  ],
+  "tags": [
+    {
+      "id": "important",
+      "name": "重要",
+      "color": "#ff2aa1"
+    },
+    {
+      "id": "todo",
+      "name": "待辦",
+      "color": "#ffe600"
+    },
+    {
+      "id": "reference",
+      "name": "參考",
+      "color": "#21e6ff"
+    },
+    {
+      "id": "tip",
+      "name": "技巧",
+      "color": "#9b5cff"
+    }
+  ],
+  "version": "1.0.0"
+}

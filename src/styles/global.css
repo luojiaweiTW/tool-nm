@@ -1,0 +1,583 @@
+/**
+ * Global Styles - 牛马工具集
+ * 全局样式、重置与背景效果
+ */
+
+/* ========== 全局重置 ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  /* 增强字体渲染 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'kern' 1;
+  font-kerning: normal;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 扫描线效果层 - ⚡ 性能优化：禁用动画 */
+#app::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 200%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(33, 230, 255, 0.03) 2px,
+    rgba(33, 230, 255, 0.03) 4px
+  );
+  /* animation: scanline 10s linear infinite; */
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.5;
+}
+
+/* ========== 背景网点/噪点效果（霓虹夜色 - 增强浅色）========== */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  /* 增强浅色光晕，提升整体亮度 */
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(255, 42, 161, 0.18) 0%, transparent 45%),
+    radial-gradient(circle at 80% 70%, rgba(33, 230, 255, 0.20) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(155, 92, 255, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 10% 80%, rgba(208, 255, 0, 0.08) 0%, transparent 35%),
+    radial-gradient(circle at 90% 20%, rgba(255, 230, 0, 0.08) 0%, transparent 35%);
+}
+
+/* 网点纹理层（提亮）*/
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  /* 使用更亮的网点纹理 */
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2321e6ff' fill-opacity='0.08' fill-rule='evenodd'%3E%3Cpath d='M0 20c5.523 0 10-4.477 10-10S5.523 0 0 0v20zm40 0c-5.523 0-10-4.477-10-10s4.477-10 10-10v20z'/%3E%3C/g%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+  opacity: 0.7;  /* 从 0.6 提高到 0.7 */
+}
+
+/* ========== 霓虹炫彩滚动条 - 未来之城穿梭效果 ========== */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(10, 15, 30, 0.8);
+  border-radius: 6px;
+  border: 1px solid rgba(33, 230, 255, 0.2);
+  box-shadow: 
+    inset 0 0 10px rgba(0, 0, 0, 0.5),
+    0 0 5px rgba(33, 230, 255, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, 
+    #21e6ff 0%, 
+    #9b5cff 50%, 
+    #ff2aa1 100%);
+  border-radius: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 0 10px #21e6ff,
+    inset 0 0 5px rgba(255, 255, 255, 0.3);
+  /* ⚡ 性能优化：禁用动画 */
+  /* animation: scrollbarGlow 2s ease-in-out infinite; */
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, 
+    #ff2aa1 0%, 
+    #9b5cff 50%, 
+    #21e6ff 100%);
+  box-shadow: 
+    0 0 20px #ff2aa1,
+    0 0 35px #9b5cff,
+    0 0 50px #21e6ff,
+    inset 0 0 15px rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
+  cursor: pointer;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, 
+    #ffe600 0%, 
+    #d0ff00 50%, 
+    #21e6ff 100%);
+  box-shadow: 
+    0 0 25px #ffe600,
+    0 0 40px #d0ff00,
+    0 0 60px #21e6ff,
+    inset 0 0 20px rgba(255, 255, 255, 0.6);
+  transform: scale(1.15);
+}
+
+/* 横向滚动条 */
+::-webkit-scrollbar-thumb:horizontal {
+  background: linear-gradient(90deg, 
+    #21e6ff 0%, 
+    #9b5cff 50%, 
+    #ff2aa1 100%);
+}
+
+::-webkit-scrollbar-thumb:horizontal:hover {
+  background: linear-gradient(90deg, 
+    #ff2aa1 0%, 
+    #9b5cff 50%, 
+    #21e6ff 100%);
+}
+
+::-webkit-scrollbar-thumb:horizontal:active {
+  background: linear-gradient(90deg, 
+    #ffe600 0%, 
+    #d0ff00 50%, 
+    #21e6ff 100%);
+}
+
+/* Firefox 滚动条 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #21e6ff rgba(10, 15, 30, 0.8);
+}
+
+/* 滚动条角落 */
+::-webkit-scrollbar-corner {
+  background: rgba(10, 15, 30, 0.8);
+}
+
+/* ⚡ 性能优化：已删除所有@keyframes动画定义和全局animation应用 */
+
+/* ========== 文本选择 ========== */
+::selection {
+  background-color: var(--neon-cyan);
+  color: #000000;
+}
+
+::-moz-selection {
+  background-color: var(--neon-cyan);
+  color: #000000;
+}
+
+/* ========== 焦点环 ========== */
+*:focus-visible {
+  outline: var(--border-width-normal) solid var(--neon-cyan);
+  outline-offset: 2px;
+  box-shadow: var(--glow-cyan);
+}
+
+/* ========== 标题样式 ========== */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  color: var(--color-text);
+}
+
+h1 {
+  font-size: var(--font-size-3xl);
+  font-family: var(--font-family-display);
+}
+
+h2 {
+  font-size: var(--font-size-2xl);
+  font-family: var(--font-family-display);
+}
+
+h3 {
+  font-size: var(--font-size-xl);
+}
+
+h4 {
+  font-size: var(--font-size-lg);
+}
+
+h5,
+h6 {
+  font-size: var(--font-size-base);
+}
+
+/* ========== 链接样式 ========== */
+a {
+  color: var(--neon-cyan);
+  text-decoration: none;
+  transition: all var(--transition-base) var(--transition-timing);
+}
+
+a:hover {
+  color: var(--neon-cyan-light);
+  text-shadow: var(--glow-cyan);
+}
+
+/* ========== 代码样式 ========== */
+code,
+pre {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+}
+
+code {
+  padding: 2px 6px;
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--neon-lime);
+}
+
+pre {
+  padding: var(--spacing-md);
+  background-color: var(--color-panel);
+  border: var(--border-width-normal) solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  line-height: var(--line-height-relaxed);
+}
+
+pre code {
+  padding: 0;
+  background: none;
+  border: none;
+}
+
+/* ========== 工具类 ========== */
+.neon-text-cyan {
+  color: var(--neon-cyan);
+  text-shadow: var(--glow-cyan);
+}
+
+.neon-text-pink {
+  color: var(--neon-pink);
+  text-shadow: var(--glow-pink);
+}
+
+.neon-text-purple {
+  color: var(--neon-purple);
+  text-shadow: var(--glow-purple);
+}
+
+.neon-text-yellow {
+  color: var(--neon-yellow);
+  text-shadow: var(--glow-yellow);
+}
+
+.neon-text-lime {
+  color: var(--neon-lime);
+  text-shadow: var(--glow-lime);
+}
+
+/* ========== 等宽字体区域 ========== */
+.mono {
+  font-family: var(--font-family-mono);
+}
+
+/* ========== 截断文本 ========== */
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-ellipsis-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2; /* 标准属性 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ========== 动画辅助类 ========== */
+.transition-neon {
+  transition: all var(--transition-base) var(--transition-timing);
+}
+
+.transition-fast {
+  transition: all var(--transition-fast) var(--transition-timing);
+}
+
+.transition-slow {
+  transition: all var(--transition-slow) var(--transition-timing);
+}
+
+/* ========== 无用户选择 ========== */
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ========== 页面进入动画 ========== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    box-shadow: var(--glow-cyan);
+  }
+  50% {
+    box-shadow: var(--glow-cyan-strong);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp var(--transition-slow) var(--transition-timing);
+}
+
+.fade-in {
+  animation: fadeIn var(--transition-base) var(--transition-timing);
+}
+
+.glow-pulse {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+/* ========== 页面切换过渡（仅作用于主内容区） ========== */
+/* 注意：这些动画已移至 MainLayout.vue 的 scoped 样式中 */
+
+/* 快速淡入淡出动画（性能优化，用于频繁切换场景） */
+.fade-fast-enter-active,
+.fade-fast-leave-active {
+  transition: opacity 0.15s ease-in-out;
+}
+
+.fade-fast-enter-from,
+.fade-fast-leave-to {
+  opacity: 0;
+}
+
+/* ========== 侧栏展开收起过渡 ========== */
+.sidebar-enter-active,
+.sidebar-leave-active {
+  transition: all var(--transition-slow) var(--transition-timing);
+}
+
+.sidebar-enter-from,
+.sidebar-leave-to {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+/* ========== 禁用状态 ========== */
+.disabled,
+[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: saturate(0.5);
+}
+
+/* ========== 浅色系背景工具类 ========== */
+.bg-light-cyan {
+  background: rgba(33, 230, 255, 0.08);
+  border: 1px solid rgba(33, 230, 255, 0.2);
+}
+
+.bg-light-pink {
+  background: rgba(255, 42, 161, 0.08);
+  border: 1px solid rgba(255, 42, 161, 0.2);
+}
+
+.bg-light-purple {
+  background: rgba(155, 92, 255, 0.08);
+  border: 1px solid rgba(155, 92, 255, 0.2);
+}
+
+.bg-light-yellow {
+  background: rgba(255, 230, 0, 0.08);
+  border: 1px solid rgba(255, 230, 0, 0.2);
+}
+
+.bg-light-lime {
+  background: rgba(208, 255, 0, 0.08);
+  border: 1px solid rgba(208, 255, 0, 0.2);
+}
+
+/* ========== 浅色文本工具类 ========== */
+.text-light-cyan {
+  color: var(--neon-cyan-lighter);
+}
+
+.text-light-pink {
+  color: var(--neon-pink-lighter);
+}
+
+.text-light-purple {
+  color: var(--neon-purple-lighter);
+}
+
+.text-light-yellow {
+  color: var(--neon-yellow-lighter);
+}
+
+.text-light-lime {
+  color: var(--neon-lime-lighter);
+}
+
+/* ========== 提示文字优化样式 ========== */
+.hint-text,
+.info-text,
+.form-hint {
+  font-size: var(--font-size-sm) !important;
+  color: var(--neon-cyan-lighter) !important;  /* 使用浅色霓虹 */
+  line-height: 1.6 !important;
+  letter-spacing: 0.3px !important;  /* 增加字符间距 */
+  font-weight: var(--font-weight-medium) !important;
+  text-shadow: 0 0 8px rgba(33, 230, 255, 0.3) !important;  /* 轻微发光 */
+}
+
+/* 占位符文字优化 */
+::placeholder {
+  color: var(--color-muted) !important;
+  opacity: 0.8 !important;
+  font-size: var(--font-size-sm) !important;
+  letter-spacing: 0.2px !important;
+}
+
+/* 标签文字优化 */
+.form-label,
+label {
+  font-size: var(--font-size-sm) !important;
+  color: var(--neon-cyan-light) !important;  /* 浅色霓虹 */
+  letter-spacing: 0.5px !important;
+  font-weight: var(--font-weight-semibold) !important;
+  text-shadow: 0 0 6px rgba(33, 230, 255, 0.2) !important;  /* 轻微发光 */
+}
+
+/* 描述文字优化 */
+.tool-header__description {
+  font-size: var(--font-size-base) !important;  /* 从 sm 提升到 base */
+  color: var(--color-text-secondary) !important;  /* 更亮的颜色 */
+  letter-spacing: 0.3px !important;
+  line-height: 1.6 !important;
+}
+
+/* 字符计数文字 */
+.char-count {
+  font-size: var(--font-size-sm) !important;
+  color: var(--neon-cyan-lighter) !important;  /* 浅色霓虹 */
+  font-weight: var(--font-weight-medium) !important;
+  letter-spacing: 0.3px !important;
+}
+
+/* ========== 空状态文字优化 ========== */
+.empty-state__text {
+  font-size: var(--font-size-lg) !important;
+  color: var(--color-text-secondary) !important;  /* 更亮 */
+  font-weight: var(--font-weight-medium) !important;
+  letter-spacing: 0.5px !important;
+}
+
+.empty-state__hint {
+  font-size: var(--font-size-sm) !important;
+  color: var(--color-muted) !important;  /* 提亮 */
+  letter-spacing: 0.3px !important;
+  line-height: 1.6 !important;
+}
+
+/* ========== 占位符提示优化 ========== */
+.output-placeholder,
+.code-placeholder {
+  font-size: var(--font-size-sm) !important;
+  color: var(--color-muted) !important;  /* 提亮 */
+  font-style: normal !important;  /* 移除斜体 */
+  letter-spacing: 0.4px !important;
+  font-weight: var(--font-weight-medium) !important;
+}
+
+/* ========== 错误提示文字优化 ========== */
+.error-message {
+  font-size: var(--font-size-sm) !important;
+  letter-spacing: 0.3px !important;
+  line-height: 1.6 !important;
+  font-weight: var(--font-weight-medium) !important;
+}
+
+/* ========== 表单元素文字优化 ========== */
+input,
+textarea,
+select {
+  font-size: var(--font-size-sm) !important;
+  letter-spacing: 0.2px !important;
+  line-height: 1.5 !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* ========== 按钮文字优化 ========== */
+button {
+  letter-spacing: 0.5px !important;
+  font-weight: var(--font-weight-semibold) !important;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.3) !important;  /* 增加文字阴影，更清晰 */
+}
+
+/* ========== 代码文字优化 ========== */
+pre,
+code {
+  letter-spacing: 0 !important;  /* 等宽字体不需要额外间距 */
+  font-variant-ligatures: common-ligatures !important;  /* 启用连字 */
+}
+
+/* ========== 标题文字发光优化 ========== */
+h1, h2, h3 {
+  letter-spacing: 0.5px !important;
+  text-shadow: 0 0 10px rgba(33, 230, 255, 0.15) !important;  /* 轻微发光 */
+}
+

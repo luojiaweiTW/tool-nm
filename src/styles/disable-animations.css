@@ -1,0 +1,125 @@
+/**
+ * ⚡ 终极性能优化 - 彻底禁用所有动画和光效
+ * 此文件会覆盖所有组件的动画，将CPU/GPU占用降到最低
+ */
+
+/* ========== 全局禁用所有动画 ========== */
+*,
+*::before,
+*::after {
+  animation: none !important;
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 0 !important;
+}
+
+/* ========== 移除所有 box-shadow（GPU最大杀手） ========== */
+*,
+*::before,
+*::after,
+*:hover,
+*:focus,
+*:active {
+  box-shadow: none !important;
+}
+
+/* 只保留最基本的卡片阴影 */
+.neon-card,
+.category-card,
+.tool-card,
+.el-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* ========== 移除所有 text-shadow ========== */
+*,
+h1, h2, h3, h4, h5, h6,
+.neon-text,
+.hero-title,
+.hero-slogan,
+a,
+button {
+  text-shadow: none !important;
+}
+
+/* ========== 禁用 backdrop-filter（性能杀手） ========== */
+*,
+*::before,
+*::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* ========== 禁用 filter 特效（排除图标） ========== */
+*:not([class*="i-"]):not(i),
+*:not([class*="i-"]):not(i)::before,
+*:not([class*="i-"]):not(i)::after {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+/* 保留图标的filter（UnoCSS需要） */
+[class*="i-"],
+i[class*="i-"] {
+  filter: unset !important;
+  -webkit-filter: unset !important;
+}
+
+/* ========== 禁用 will-change ========== */
+* {
+  will-change: auto !important;
+}
+
+/* ========== 简化过渡效果 ========== */
+*,
+*::before,
+*::after {
+  transition-duration: 0.1s !important;
+  transition-delay: 0s !important;
+}
+
+/* ========== 简化渐变背景（改为纯色） ========== */
+body::before,
+body::after {
+  opacity: 0.3 !important;  /* 降低背景光晕强度 */
+}
+
+/* ========== 禁用伪元素动画层（不影响图标） ========== */
+.neon-card::before,
+.neon-card::after,
+.neon-button::before,
+.neon-button::after,
+#app::before,
+#app::after {
+  display: none !important;  /* 完全隐藏动画层 */
+}
+
+/* 确保图标显示 */
+[class*="i-"]::before,
+[class*="i-"]::after,
+i::before,
+i::after {
+  display: inline-block !important;
+}
+
+/* ========== 简化滚动条光效 ========== */
+::-webkit-scrollbar-thumb {
+  box-shadow: none !important;
+  background: linear-gradient(180deg, #21e6ff 0%, #9b5cff 100%) !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  box-shadow: none !important;
+  opacity: 0.9 !important;
+}
+
+/* ========== 禁用所有transform动画 ========== */
+*:hover {
+  transform: none !important;
+}
+
+/* ========== 移除所有发光效果 ========== */
+*:focus-visible {
+  outline: 1px solid var(--neon-cyan) !important;
+  box-shadow: none !important;
+}

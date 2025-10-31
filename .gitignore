@@ -1,0 +1,72 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build outputs
+dist/
+release/
+release-new/
+build-electron/
+temp-extract/
+
+# User data (不要上传用户数据)
+appData/
+toolData/
+ssh-history.json
+knowledge-base - 副本.json
+
+# Development files
+.vscode/
+.idea/
+*.log
+*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+dump.txt
+*.backup
+
+# 临时文档（这些是开发过程文档，可以选择不上传）
+✅*.md
+🎉*.md
+🎨*.md
+🎯*.md
+🐛*.md
+💡*.md
+📋*.txt
+📌*.md
+📚*.md
+📝*.md
+🔍*.html
+🔧*.md
+🔴*.md
+🚀*.md
+🚨*.md
+*优化*.md
+*修复*.md
+*说明*.md
+*指南*.md
+*问题*.md
+*功能*.md
+*配置*.md
+*总结*.md
+*清单*.md
+*文档*.md
+*日志*.md
+*验证*.md
+*报告*.md
+
+# 但保留重要文档
+!README.md
+!开发文档.md
+
+# 批处理脚本（可选，看你是否需要）
+*.bat
+*.ps1
+
+# 但保留构建脚本
+!build-electron.bat
