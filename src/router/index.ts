@@ -46,6 +46,7 @@ import ImageCompressor from '@/pages/tools/ImageCompressor/Index.vue'
 import ImageConverter from '@/pages/tools/ImageConverter/Index.vue'
 import ImageCropper from '@/pages/tools/ImageCropper/Index.vue'
 import FileHash from '@/pages/tools/FileHash/Index.vue'
+import Calculator from '@/pages/tools/Calculator/Index.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -540,6 +541,19 @@ const routes: RouteRecordRaw[] = [
           description: '管理你的常用网站和资源链接',
           icon: 'i-mdi-bookmark-multiple',
           category: '知识管理',
+        }
+      },
+      
+      // ========== 实用工具 ==========
+      {
+        path: 'tools/calculator',
+        name: 'Calculator',
+        component: Calculator,
+        meta: {
+          title: '计算器',
+          description: '支持历史记录和时间旅行的计算器',
+          icon: 'i-carbon-calculator',
+          category: '实用工具',
         }
       },
       
