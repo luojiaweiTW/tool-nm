@@ -173,9 +173,9 @@
         </EmptyState>
 
         <!-- 知识列表 -->
-        <div v-else class="knowledge-items">
+        <div v-else class="knowledge-items scrollbar">
           <div
-            v-for="item in knowledgeStore.filteredItems"
+            v-for="item in paginatedItems"
             :key="item.id"
             class="knowledge-list-item"
             :class="{ active: selectedItem?.id === item.id }"
@@ -219,6 +219,12 @@
                 <span class="item-time">{{ formatDate(item.updatedAt) }}</span>
               </div>
             </div>
+          </div>
+          <!-- ⚡ 加载更多按钮 -->
+          <div v-if="hasMoreItems" style="margin: 16px;">
+            <NeonButton @click="loadMore" style="width: 100%;">
+              加载更多 (剩余 {{ knowledgeStore.filteredItems.length - paginatedItems.length }} 条)
+            </NeonButton>
           </div>
         </div>
       </div>
@@ -434,6 +440,7 @@ import CategoryManager from './components/CategoryManager.vue'
 import TagManager from './components/TagManager.vue'
 import KeyboardShortcuts from './components/KeyboardShortcuts.vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
+import { watchDebounced } from '@/composables/useDebounce'
 import {
   Search,
   Plus,
@@ -471,6 +478,25 @@ const selectedTags = ref<string[]>([])
 // 选中的项目
 const selectedItem = ref<KnowledgeItem | undefined>()
 
+// ⚡ 分页状态
+const pageSize = ref(30)
+const currentPage = ref(1)
+
+// ⚡ 分页显示的列表
+const paginatedItems = computed(() => {
+  return knowledgeStore.filteredItems.slice(0, currentPage.value * pageSize.value)
+})
+
+// ⚡ 是否还有更多
+const hasMoreItems = computed(() => {
+  return paginatedItems.value.length < knowledgeStore.filteredItems.length
+})
+
+// ⚡ 加载更多
+const loadMore = () => {
+  currentPage.value++
+}
+
 // 侧边栏折叠状态
 const sidebarCollapsed = ref(false)
 
@@ -499,9 +525,16 @@ onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyDown)
 })
 
-// 搜索
+// ⚡ 搜索（带防抖）
+watchDebounced(searchText, () => {
+  knowledgeStore.setFilter({ searchText: searchText.value })
+  currentPage.value = 1
+}, 300)
+
+// 搜索回车处理
 function handleSearch() {
   knowledgeStore.setFilter({ searchText: searchText.value })
+  currentPage.value = 1
 }
 
 // 选择分类
@@ -511,6 +544,8 @@ function selectCategory(categoryId: string | undefined) {
   } else {
     knowledgeStore.setFilter({ categoryId })
   }
+  // ⚡ 重置分页
+  currentPage.value = 1
 }
 
 // 切换标签
@@ -525,6 +560,8 @@ function toggleTag(tagId: string) {
   }
   
   knowledgeStore.setFilter({ tagIds: [...tags] })
+  // ⚡ 重置分页
+  currentPage.value = 1
 }
 
 // 检查标签是否选中
@@ -535,18 +572,24 @@ function isTagSelected(tagId: string) {
 // 类型筛选
 function handleTypeChange(type: '' | 'text' | 'image' | 'url') {
   knowledgeStore.setFilter({ type: type || undefined })
+  // ⚡ 重置分页
+  currentPage.value = 1
 }
 
 // 切换钉选筛选
 function togglePinnedFilter() {
   const current = knowledgeStore.filter.isPinned
   knowledgeStore.setFilter({ isPinned: current ? undefined : true })
+  // ⚡ 重置分页
+  currentPage.value = 1
 }
 
 // 切换收藏筛选
 function toggleFavoriteFilter() {
   const current = knowledgeStore.filter.isFavorite
   knowledgeStore.setFilter({ isFavorite: current ? undefined : true })
+  // ⚡ 重置分页
+  currentPage.value = 1
 }
 
 // 显示编辑器
@@ -978,6 +1021,8 @@ function handleKeyDown(event: KeyboardEvent) {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  max-height: calc(100vh - 250px); /* 🔧 限制最大高度，避免溢出 */
+  overflow-y: auto;
 }
 
 /* 列表項 */

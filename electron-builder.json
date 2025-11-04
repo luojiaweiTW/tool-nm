@@ -1,7 +1,7 @@
 {
-  "appId": "com.nmtool.app",
-  "productName": "牛马工具集",
-  "copyright": "Copyright © 2025 牛马工具集",
+  "appId": "com.iwork.app",
+  "productName": "IWork",
+  "copyright": "Copyright © 2025 IWork",
   "directories": {
     "output": "release-new",
     "buildResources": "build"
@@ -10,7 +10,8 @@
     "dist/**/*",
     "electron-main.cjs",
     "electron-preload.cjs",
-    "package.json"
+    "package.json",
+    "!**/*.map"
   ],
   "asarUnpack": [
     "build/**/*"
@@ -37,11 +38,12 @@
       }
     ],
     "icon": "build/icon.ico",
+    "executableName": "IWork",
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "signAndEditExecutable": false,
     "verifyUpdateCodeSignature": false,
     "requestedExecutionLevel": "asInvoker",
-    "legalTrademarks": "牛马工具集"
+    "legalTrademarks": "IWork"
   },
   "nsis": {
     "oneClick": false,
@@ -49,7 +51,7 @@
     "allowElevation": true,
     "createDesktopShortcut": "always",
     "createStartMenuShortcut": true,
-    "shortcutName": "牛马工具集",
+    "shortcutName": "IWork",
     "installerIcon": "build/icon.ico",
     "uninstallerIcon": "build/icon.ico",
     "installerHeaderIcon": "build/icon.ico",
@@ -73,15 +75,14 @@
     "category": "Development"
   },
   "extraMetadata": {
-    "name": "nm-tool",
-    "productName": "牛马工具集",
+    "name": "iwork",
+    "productName": "IWork",
     "version": "1.0.0",
-    "description": "牛马工具集 - 实用开发工具合集",
+    "description": "IWork - Developer Toolkit",
     "author": {
-      "name": "牛马工具集",
-      "email": "luojiawei24@163.com"
+      "name": "IWork",
+      "email": "xxx@163.com"
     },
-    "copyright": "Copyright © 2025 牛马工具集"
+    "copyright": "Copyright © 2025 IWork"
   }
 }
-

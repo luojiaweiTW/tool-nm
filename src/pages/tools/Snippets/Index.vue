@@ -135,7 +135,7 @@
         <!-- 代码片段列表 -->
         <div v-else class="snippets-grid">
           <SnippetCard
-            v-for="snippet in snippetStore.filteredSnippets"
+            v-for="snippet in paginatedSnippets"
             :key="snippet.id"
             :snippet="snippet"
             @edit="handleEdit"
@@ -144,6 +144,12 @@
             @toggle-pin="handleTogglePin"
             @toggle-favorite="handleToggleFavorite"
           />
+          <!-- ⚡ 加载更多按钮 -->
+          <div v-if="hasMoreSnippets" class="load-more-btn">
+            <NeonButton @click="loadMore" style="width: 100%;">
+              加载更多 (剩余 {{ snippetStore.filteredSnippets.length - paginatedSnippets.length }} 条)
+            </NeonButton>
+          </div>
         </div>
       </main>
     </div>
@@ -169,6 +175,7 @@ import NeonInput from '@/components/NeonInput.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import SnippetCard from './components/SnippetCard.vue'
 import SnippetEditor from './components/SnippetEditor.vue'
+import { watchDebounced } from '@/composables/useDebounce'
 
 const snippetStore = useSnippetStore()
 
@@ -183,6 +190,25 @@ const showFavorite = ref(false)
 // 编辑器状态
 const editorVisible = ref(false)
 const currentSnippet = ref<Snippet | undefined>()
+
+// ⚡ 分页状态
+const pageSize = ref(20)
+const currentPage = ref(1)
+
+// ⚡ 分页显示的列表
+const paginatedSnippets = computed(() => {
+  return snippetStore.filteredSnippets.slice(0, currentPage.value * pageSize.value)
+})
+
+// ⚡ 是否还有更多
+const hasMoreSnippets = computed(() => {
+  return paginatedSnippets.value.length < snippetStore.filteredSnippets.length
+})
+
+// ⚡ 加载更多
+const loadMore = () => {
+  currentPage.value++
+}
 
 // 支持的语言列表
 const languages = ref([
@@ -205,9 +231,22 @@ const languages = ref([
   { id: 'markdown', name: 'Markdown', icon: 'i-mdi-language-markdown', color: '#000000' },
 ])
 
-// 监听筛选条件变化
+// ⚡ 监听搜索文本变化（带防抖）
+watchDebounced(searchText, () => {
+  snippetStore.setFilter({
+    searchText: searchText.value || undefined,
+    language: selectedLanguage.value || undefined,
+    categoryId: selectedCategory.value || undefined,
+    tagIds: selectedTags.value.length > 0 ? selectedTags.value : undefined,
+    isPinned: showPinned.value || undefined,
+    isFavorite: showFavorite.value || undefined,
+  })
+  currentPage.value = 1
+}, 300)
+
+// 监听其他筛选条件变化（立即生效）
 watch(
-  [searchText, selectedLanguage, selectedCategory, selectedTags, showPinned, showFavorite],
+  [selectedLanguage, selectedCategory, selectedTags, showPinned, showFavorite],
   () => {
     snippetStore.setFilter({
       searchText: searchText.value || undefined,
@@ -217,6 +256,8 @@ watch(
       isPinned: showPinned.value || undefined,
       isFavorite: showFavorite.value || undefined,
     })
+    // ⚡ 重置分页
+    currentPage.value = 1
   }
 )
 

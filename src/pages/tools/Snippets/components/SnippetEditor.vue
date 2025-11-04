@@ -99,13 +99,15 @@
               行数: {{ lineCount }} | 字符: {{ form.code.length }}
             </span>
           </div>
-          <NeonTextarea
-            ref="codeTextareaRef"
-            v-model="form.code"
-            placeholder="输入或粘贴代码..."
-            :rows="15"
-            class="code-textarea mono"
-          />
+          <div class="code-editor__wrapper">
+            <NeonTextarea
+              ref="codeTextareaRef"
+              v-model="form.code"
+              placeholder="输入或粘贴代码..."
+              :rows="15"
+              class="code-textarea mono"
+            />
+          </div>
         </div>
       </el-form-item>
 
@@ -454,10 +456,18 @@ function handleClose() {
   color: var(--color-text-secondary);
 }
 
+/* 🔧 代码编辑区域固定高度 */
+.code-editor__wrapper {
+  height: 400px;
+  overflow: hidden;
+}
+
 .code-textarea :deep(.neon-textarea__inner) {
   font-family: var(--font-family-mono);
   font-size: var(--font-size-sm);
   line-height: 1.6;
+  height: 100% !important;
+  min-height: 400px !important;
 }
 
 .dialog-footer {

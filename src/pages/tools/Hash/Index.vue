@@ -35,14 +35,16 @@
 
             <!-- 文本输入 -->
             <div v-if="inputType === 'text'" class="text-input">
-              <NeonTextarea
-                v-model="inputText"
-                label="输入文本"
-                placeholder="输入要计算哈希的文本..."
-                :rows="8"
-                show-count
-                :maxlength="50000"
-              />
+              <div class="textarea-wrapper">
+                <NeonTextarea
+                  v-model="inputText"
+                  label="输入文本"
+                  placeholder="输入要计算哈希的文本..."
+                  :rows="8"
+                  show-count
+                  :maxlength="50000"
+                />
+              </div>
             </div>
 
             <!-- 文件输入 -->
@@ -325,6 +327,27 @@ watch(selectedFile, () => {
   padding: var(--spacing-xl);
 }
 
+/* 🎨 霓虹风格滚动条 */
+.tool-page__content::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.tool-page__content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.tool-page__content::-webkit-scrollbar-thumb {
+  background: rgba(33, 230, 255, 0.5);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.tool-page__content::-webkit-scrollbar-thumb:hover {
+  background: rgba(33, 230, 255, 0.8);
+}
+
 .hash-calculator {
   display: grid;
   grid-template-columns: 1fr 1.5fr;
@@ -477,6 +500,17 @@ watch(selectedFile, () => {
   .hash-calculator {
     grid-template-columns: 1fr;
   }
+}
+
+/* 🔧 固定高度确保滚动 */
+.textarea-wrapper {
+  height: 250px;
+  overflow: hidden;
+}
+
+.textarea-wrapper :deep(textarea) {
+  height: 100% !important;
+  min-height: 250px !important;
 }
 </style>
 

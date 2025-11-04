@@ -5,13 +5,15 @@
       <div class="hero-content">
         <!-- Logo 头像 -->
         <div class="hero-logo">
-          <img src="/build/icon.png" alt="牛马工具" class="logo-image" />
+          <img src="/build/icon.png" alt="IWork" class="logo-image" />
         </div>
         <h1 class="hero-title">
-          <span class="neon-text">牛马工具</span>
+          <span class="neon-text">IWork</span>
         </h1>
         <p class="hero-subtitle">功能强大的在线工具集合 · 简洁高效 · 开箱即用</p>
-        <p class="hero-slogan">牛马人用牛马工具做好牛马 💪</p>
+        <transition name="slogan-fade" mode="out-in">
+          <p :key="currentSloganIndex" class="hero-slogan">{{ currentSlogan }} 💪</p>
+        </transition>
         
         <!-- 全局搜索 -->
         <div class="search-box">
@@ -123,6 +125,39 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const searchKeyword = ref('')
+
+// 打工人哲学 Slogan 列表
+const slogans = [
+  '我打工，故我卑微；我加班，故我存在',
+  '他人即地狱，老板更是地狱中的地狱',
+  '不知是我在打工，还是工作在打我',
+  '某天早上醒来，发现自己变成了一只打工虫',
+  '人生天地间，若白驹过隙，唯有工作最漫长',
+  '世上本没有内卷，打工的人多了，便有了内卷',
+  '未经反思的打工不值得过，但反思了更痛苦',
+  '凝视深渊的打工人，最终也被深渊所凝视',
+  '打工是西西弗斯的巨石，日复一日永无止境',
+  '人生即痛苦，打工是痛苦的具象化',
+  '向死而生，向钱而卷，此即打工人的宿命',
+  '打工前，山是山；打工后，山还是山，但我已爬不动',
+  '天地不仁，以万物为刍狗；老板不仁，以打工人为牛马',
+  '人不能两次踏进同一条河流，但能无数次踏进同一个办公室',
+  '打工是枷锁，自由只在梦里',
+  '生老病死之外，还有第五苦：打工',
+  '打工人创造价值，却只能得到工资',
+  '自由意志？那是打工之前的幻觉',
+  '人之初，性本善；打工后，性本累',
+  '知行合一？先让我周末能合眼',
+]
+
+// 当前 Slogan 索引
+const currentSloganIndex = ref(0)
+
+// 当前 Slogan
+const currentSlogan = computed(() => slogans[currentSloganIndex.value])
+
+// Slogan 定时器
+let sloganTimer: ReturnType<typeof setInterval> | null = null
 
 // 工具分类数据
 const categories = [
@@ -260,10 +295,21 @@ function handleKeyDown(e: KeyboardEvent) {
 
 onMounted(() => {
   window.addEventListener('keydown', handleKeyDown)
+  
+  // 启动 Slogan 轮播定时器（每1分钟切换一次）
+  sloganTimer = setInterval(() => {
+    currentSloganIndex.value = (currentSloganIndex.value + 1) % slogans.length
+  }, 60000) // 60000ms = 1分钟
 })
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyDown)
+  
+  // 清除 Slogan 定时器
+  if (sloganTimer) {
+    clearInterval(sloganTimer)
+    sloganTimer = null
+  }
 })
 </script>
 
@@ -389,6 +435,22 @@ onUnmounted(() => {
     0 0 10px rgba(208, 255, 0, 0.6),
     0 0 20px rgba(208, 255, 0, 0.4);
   animation: sloganGlow 2s ease-in-out infinite;
+}
+
+/* Slogan 淡入淡出过渡动画 */
+.slogan-fade-enter-active,
+.slogan-fade-leave-active {
+  transition: all 0.5s ease;
+}
+
+.slogan-fade-enter-from {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.slogan-fade-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
 }
 
 @keyframes sloganGlow {

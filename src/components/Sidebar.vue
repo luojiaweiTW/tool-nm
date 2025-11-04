@@ -15,7 +15,7 @@
         </div>
         <transition name="sidebar">
           <span v-show="!isCollapsed" class="neon-sidebar__logo-text">
-            牛马工具
+            IWork
           </span>
         </transition>
       </div>
@@ -226,6 +226,12 @@ const menuCategories: MenuCategory[] = [
         icon: 'i-mdi-file-swap',
         description: 'UTF-8、GBK、GB2312 等编码格式互转',
       },
+      {
+        path: '/tools/file-hash',
+        title: '文件哈希校验',
+        icon: 'i-mdi-shield-check',
+        description: 'MD5/SHA1/SHA256/SHA512 哈希计算',
+      },
     ]
   },
   {
@@ -261,6 +267,31 @@ const menuCategories: MenuCategory[] = [
     ]
   },
   {
+    id: 'image-tools',
+    title: '🖼️ 图片工具',
+    icon: 'i-mdi-image-multiple',
+    children: [
+      {
+        path: '/tools/image-compressor',
+        title: '图片压缩',
+        icon: 'i-mdi-image-size-select-actual',
+        description: '在线压缩 JPG/PNG/WebP 图片',
+      },
+      {
+        path: '/tools/image-converter',
+        title: '图片格式转换',
+        icon: 'i-mdi-image-sync',
+        description: 'JPG/PNG/WebP/GIF 格式互转',
+      },
+      {
+        path: '/tools/image-cropper',
+        title: '图片裁剪缩放',
+        icon: 'i-mdi-crop',
+        description: '裁剪图片、调整尺寸、预设比例',
+      },
+    ]
+  },
+  {
     id: 'dev-tools',
     title: '🔧 开发工具',
     icon: 'i-mdi-tools',
@@ -288,6 +319,18 @@ const menuCategories: MenuCategory[] = [
         title: '二维码生成',
         icon: 'i-mdi-qrcode',
         description: '支持文本、网址、名片、WiFi、Logo等',
+      },
+      {
+        path: '/tools/unit-converter',
+        title: '单位换算器',
+        icon: 'i-mdi-swap-horizontal',
+        description: '长度、重量、温度、面积、体积、时间、存储、速度等单位互转',
+      },
+      {
+        path: '/tools/color-converter',
+        title: '颜色转换器',
+        icon: 'i-mdi-palette',
+        description: 'HEX、RGB、HSL、RGBA、HSLA 颜色格式互转',
       },
     ]
   },
@@ -351,6 +394,18 @@ const menuCategories: MenuCategory[] = [
         icon: 'i-mdi-lan-connect',
         description: '扫描服务器开放端口，支持多种扫描模式',
       },
+      {
+        path: '/tools/ip-scanner',
+        title: 'IP 扫描器',
+        icon: 'i-mdi-ip-network-outline',
+        description: '扫描局域网中的 IP 地址使用情况',
+      },
+      {
+        path: '/tools/websocket',
+        title: 'WebSocket 测试',
+        icon: 'i-mdi-connection',
+        description: '连接 WebSocket 服务器，测试实时通信',
+      },
     ]
   },
   {
@@ -369,6 +424,12 @@ const menuCategories: MenuCategory[] = [
         title: '代码片段',
         icon: 'i-mdi-code-braces-box',
         description: '管理和使用你的代码片段',
+      },
+      {
+        path: '/tools/bookmarks',
+        title: '网页收藏夹',
+        icon: 'i-mdi-bookmark-multiple',
+        description: '管理你的常用网站和资源链接',
       },
     ]
   },
@@ -394,6 +455,12 @@ const menuCategories: MenuCategory[] = [
         title: '系统监控',
         icon: 'i-mdi-monitor-dashboard',
         description: '实时监控 CPU、内存、磁盘等系统资源',
+      },
+      {
+        path: '/tools/weather',
+        title: '天气查询',
+        icon: 'i-mdi-weather-partly-cloudy',
+        description: '查看多个城市的实时天气和天气预报',
       },
     ]
   },

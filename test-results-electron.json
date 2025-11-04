@@ -1,0 +1,429 @@
+{
+  "config": {
+    "configFile": "E:\\code\\tool3\\neon-tools\\playwright-electron.config.ts",
+    "rootDir": "E:/code/tool3/neon-tools/tests/e2e-electron",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report-electron"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results-electron.json"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "E:/code/tool3/neon-tools/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "E:/code/tool3/neon-tools/tests/e2e-electron",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ip-scanner-electron.spec.ts",
+      "file": "ip-scanner-electron.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "IP 扫描器 (Electron)",
+          "file": "ip-scanner-electron.spec.ts",
+          "line": 9,
+          "column": 6,
+          "specs": [
+            {
+              "title": "应该能访问 IP 扫描器页面",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10777,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.main-layout') to be visible\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.main-layout') to be visible\u001b[22m\n\n    at waitForAppReady (E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts:51:16)\n    at E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\ip-scanner-electron.spec.ts:14:13",
+                        "location": {
+                          "file": "E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts",
+                          "column": 16,
+                          "line": 51
+                        },
+                        "snippet": "   at electron-helpers.ts:51\n\n  49 | export async function waitForAppReady(window: Page) {\n  50 |   // 等待 Vue Router 准备就绪\n> 51 |   await window.waitForSelector('.main-layout', { timeout: 10000 })\n     |                ^\n  52 | }\n  53 |\n  54 | /**"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts",
+                            "column": 16,
+                            "line": 51
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.main-layout') to be visible\u001b[22m\n\n\n   at electron-helpers.ts:51\n\n  49 | export async function waitForAppReady(window: Page) {\n  50 |   // 等待 Vue Router 准备就绪\n> 51 |   await window.waitForSelector('.main-layout', { timeout: 10000 })\n     |                ^\n  52 | }\n  53 |\n  54 | /**\n    at waitForAppReady (E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts:51:16)\n    at E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\ip-scanner-electron.spec.ts:14:13"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-03T06:38:30.559Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "E:\\code\\tool3\\neon-tools\\test-results\\ip-scanner-electron-IP-扫描器-Electron-应该能访问-IP-扫描器页面\\test-failed-1.png"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "E:\\code\\tool3\\neon-tools\\test-results\\ip-scanner-electron-IP-扫描器-Electron-应该能访问-IP-扫描器页面\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts",
+                        "column": 16,
+                        "line": 51
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "cf68cfbaf55df4ad8192-bd2ffc435538fc0568f8",
+              "file": "ip-scanner-electron.spec.ts",
+              "line": 10,
+              "column": 3
+            },
+            {
+              "title": "应该能修改 IP 前缀",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10793,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.main-layout') to be visible\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.main-layout') to be visible\u001b[22m\n\n    at waitForAppReady (E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts:51:16)\n    at E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\ip-scanner-electron.spec.ts:45:13",
+                        "location": {
+                          "file": "E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts",
+                          "column": 16,
+                          "line": 51
+                        },
+                        "snippet": "   at electron-helpers.ts:51\n\n  49 | export async function waitForAppReady(window: Page) {\n  50 |   // 等待 Vue Router 准备就绪\n> 51 |   await window.waitForSelector('.main-layout', { timeout: 10000 })\n     |                ^\n  52 | }\n  53 |\n  54 | /**"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts",
+                            "column": 16,
+                            "line": 51
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.main-layout') to be visible\u001b[22m\n\n\n   at electron-helpers.ts:51\n\n  49 | export async function waitForAppReady(window: Page) {\n  50 |   // 等待 Vue Router 准备就绪\n> 51 |   await window.waitForSelector('.main-layout', { timeout: 10000 })\n     |                ^\n  52 | }\n  53 |\n  54 | /**\n    at waitForAppReady (E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts:51:16)\n    at E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\ip-scanner-electron.spec.ts:45:13"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-03T06:38:42.329Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "E:\\code\\tool3\\neon-tools\\test-results\\ip-scanner-electron-IP-扫描器-Electron-应该能修改-IP-前缀\\test-failed-1.png"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "E:\\code\\tool3\\neon-tools\\test-results\\ip-scanner-electron-IP-扫描器-Electron-应该能修改-IP-前缀\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts",
+                        "column": 16,
+                        "line": 51
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "cf68cfbaf55df4ad8192-6c59c9ffca13f0626f4b",
+              "file": "ip-scanner-electron.spec.ts",
+              "line": 41,
+              "column": 3
+            },
+            {
+              "title": "应该能启动和停止扫描",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10736,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.main-layout') to be visible\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.main-layout') to be visible\u001b[22m\n\n    at waitForAppReady (E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts:51:16)\n    at E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\ip-scanner-electron.spec.ts:66:13",
+                        "location": {
+                          "file": "E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts",
+                          "column": 16,
+                          "line": 51
+                        },
+                        "snippet": "   at electron-helpers.ts:51\n\n  49 | export async function waitForAppReady(window: Page) {\n  50 |   // 等待 Vue Router 准备就绪\n> 51 |   await window.waitForSelector('.main-layout', { timeout: 10000 })\n     |                ^\n  52 | }\n  53 |\n  54 | /**"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts",
+                            "column": 16,
+                            "line": 51
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.main-layout') to be visible\u001b[22m\n\n\n   at electron-helpers.ts:51\n\n  49 | export async function waitForAppReady(window: Page) {\n  50 |   // 等待 Vue Router 准备就绪\n> 51 |   await window.waitForSelector('.main-layout', { timeout: 10000 })\n     |                ^\n  52 | }\n  53 |\n  54 | /**\n    at waitForAppReady (E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts:51:16)\n    at E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\ip-scanner-electron.spec.ts:66:13"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-03T06:38:54.026Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "E:\\code\\tool3\\neon-tools\\test-results\\ip-scanner-electron-IP-扫描器-Electron-应该能启动和停止扫描\\test-failed-1.png"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "E:\\code\\tool3\\neon-tools\\test-results\\ip-scanner-electron-IP-扫描器-Electron-应该能启动和停止扫描\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts",
+                        "column": 16,
+                        "line": 51
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "cf68cfbaf55df4ad8192-6af06acd9787244acadc",
+              "file": "ip-scanner-electron.spec.ts",
+              "line": 62,
+              "column": 3
+            },
+            {
+              "title": "应该显示扫描进度",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10787,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.main-layout') to be visible\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.main-layout') to be visible\u001b[22m\n\n    at waitForAppReady (E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts:51:16)\n    at E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\ip-scanner-electron.spec.ts:99:13",
+                        "location": {
+                          "file": "E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts",
+                          "column": 16,
+                          "line": 51
+                        },
+                        "snippet": "   at electron-helpers.ts:51\n\n  49 | export async function waitForAppReady(window: Page) {\n  50 |   // 等待 Vue Router 准备就绪\n> 51 |   await window.waitForSelector('.main-layout', { timeout: 10000 })\n     |                ^\n  52 | }\n  53 |\n  54 | /**"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts",
+                            "column": 16,
+                            "line": 51
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.main-layout') to be visible\u001b[22m\n\n\n   at electron-helpers.ts:51\n\n  49 | export async function waitForAppReady(window: Page) {\n  50 |   // 等待 Vue Router 准备就绪\n> 51 |   await window.waitForSelector('.main-layout', { timeout: 10000 })\n     |                ^\n  52 | }\n  53 |\n  54 | /**\n    at waitForAppReady (E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts:51:16)\n    at E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\ip-scanner-electron.spec.ts:99:13"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-03T06:39:05.724Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "E:\\code\\tool3\\neon-tools\\test-results\\ip-scanner-electron-IP-扫描器-Electron-应该显示扫描进度\\test-failed-1.png"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "E:\\code\\tool3\\neon-tools\\test-results\\ip-scanner-electron-IP-扫描器-Electron-应该显示扫描进度\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "E:\\code\\tool3\\neon-tools\\tests\\e2e-electron\\electron-helpers.ts",
+                        "column": 16,
+                        "line": 51
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "cf68cfbaf55df4ad8192-d5e6f0bd76cb9ea2abab",
+              "file": "ip-scanner-electron.spec.ts",
+              "line": 95,
+              "column": 3
+            },
+            {
+              "title": "应该验证 IPC 通信正常",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "interrupted",
+                      "duration": 9694,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-03T06:39:17.471Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "E:\\code\\tool3\\neon-tools\\test-results\\ip-scanner-electron-IP-扫描器-Electron-应该验证-IPC-通信正常\\trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cf68cfbaf55df4ad8192-a6ffd92ec412a8ef0866",
+              "file": "ip-scanner-electron.spec.ts",
+              "line": 129,
+              "column": 3
+            },
+            {
+              "title": "扫描结果应该显示对比度良好的状态徽章",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "cf68cfbaf55df4ad8192-2093b3b758bacb728f82",
+              "file": "ip-scanner-electron.spec.ts",
+              "line": 150,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-11-03T06:38:28.769Z",
+    "duration": 58607.43800000001,
+    "expected": 0,
+    "skipped": 2,
+    "unexpected": 4,
+    "flaky": 0
+  }
+}

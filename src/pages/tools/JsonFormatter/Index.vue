@@ -47,13 +47,16 @@
               </el-button-group>
             </div>
           </template>
-          <NeonTextarea
-            v-model="inputJson"
-            placeholder="粘贴或输入 JSON 数据..."
-            :rows="20"
-            :error="validationError"
-            @input="handleInput"
-          />
+          <div class="input-wrapper">
+            <NeonTextarea
+              v-model="inputJson"
+              placeholder="粘贴或输入 JSON 数据..."
+              :rows="20"
+              :error="validationError"
+              @input="handleInput"
+              class="input-textarea"
+            />
+          </div>
         </NeonCard>
 
         <!-- 右侧：输出区 -->
@@ -323,7 +326,7 @@ watch(inputJson, () => {
 }
 
 .json-formatter__output {
-  flex: 1;
+  height: 600px; /* 🔧 固定高度确保滚动 */
   margin: 0;
   padding: var(--spacing-md);
   background-color: var(--color-bg);
@@ -360,7 +363,7 @@ watch(inputJson, () => {
 
 /* 树形视图 */
 .json-tree {
-  flex: 1;
+  height: 600px; /* 🔧 固定高度确保滚动 */
   padding: var(--spacing-md);
   background-color: var(--color-bg);
   border: var(--border-width-thin) solid var(--color-border);
@@ -384,6 +387,17 @@ watch(inputJson, () => {
   .json-formatter {
     grid-template-columns: 1fr;
   }
+}
+
+/* 🔧 输入区域固定高度 */
+.input-wrapper {
+  height: 600px;
+  overflow: hidden;
+}
+
+.input-textarea :deep(textarea) {
+  height: 100% !important;
+  min-height: 600px !important;
 }
 </style>
 

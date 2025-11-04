@@ -42,14 +42,16 @@
 
             <!-- 文本输入 -->
             <div v-if="inputType === 'text'" class="text-input-section">
-              <NeonTextarea
-                v-model="textInput"
-                :label="mode === 'encode' ? '输入文本' : '输入 Base64'"
-                :placeholder="mode === 'encode' ? '输入要编码的文本...' : '输入要解码的 Base64...'"
-                :rows="12"
-                show-count
-                :maxlength="50000"
-              />
+              <div class="textarea-wrapper">
+                <NeonTextarea
+                  v-model="textInput"
+                  :label="mode === 'encode' ? '输入文本' : '输入 Base64'"
+                  :placeholder="mode === 'encode' ? '输入要编码的文本...' : '输入要解码的 Base64...'"
+                  :rows="12"
+                  show-count
+                  :maxlength="50000"
+                />
+              </div>
 
               <div class="action-buttons">
                 <NeonButton
@@ -463,6 +465,17 @@ const formatFileSize = (bytes: number): string => {
   .base64-converter {
     grid-template-columns: 1fr;
   }
+}
+
+/* 🔧 固定高度确保滚动 */
+.textarea-wrapper {
+  height: 350px;
+  overflow: hidden;
+}
+
+.textarea-wrapper :deep(textarea) {
+  height: 100% !important;
+  min-height: 350px !important;
 }
 </style>
 

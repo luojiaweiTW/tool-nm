@@ -49,8 +49,31 @@ export const useCommandHistoryStore = defineStore('commandHistory', () => {
   const isLoading = ref(false)
   const filter = ref<CommandFilter>({})
 
+  // ⚡ 缓存上次的过滤结果和参数，避免不必要的重新计算
+  let cachedFilterKey = ''
+  let cachedFilterResult: CommandHistory[] = []
+
+  // ⚡ 生成过滤器缓存键
+  const getFilterKey = () => {
+    return JSON.stringify({
+      search: filter.value.searchText,
+      server: filter.value.serverHost,
+      cat: filter.value.category,
+      tags: filter.value.tagIds?.sort(),
+      fav: filter.value.isFavorite,
+      date: filter.value.dateRange,
+      count: history.value.length,
+    })
+  }
+
   // Computed
   const filteredHistory = computed(() => {
+    // ⚡ 检查缓存
+    const filterKey = getFilterKey()
+    if (filterKey === cachedFilterKey) {
+      return cachedFilterResult
+    }
+
     let result = [...history.value]
 
     // 搜索文本
@@ -101,6 +124,10 @@ export const useCommandHistoryStore = defineStore('commandHistory', () => {
       if (a.isFavorite !== b.isFavorite) return a.isFavorite ? -1 : 1
       return new Date(b.executedAt).getTime() - new Date(a.executedAt).getTime()
     })
+
+    // ⚡ 更新缓存
+    cachedFilterKey = filterKey
+    cachedFilterResult = result
 
     return result
   })

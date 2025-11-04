@@ -384,7 +384,7 @@ const loadFromFile = async () => {
 const loadFromLocalStorage = loadFromFile
 
 // 监听来自 Electron 的剪贴板更新
-const handleClipboardChange = (_event: any, content: string) => {
+const handleClipboardChange = (content: string) => {
   if (isMonitoring.value) {
     addClipboardItem(content)
   }

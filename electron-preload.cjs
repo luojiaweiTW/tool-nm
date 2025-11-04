@@ -108,11 +108,18 @@ contextBridge.exposeInMainWorld('electron', {
   // 剪贴板监听
   send: (channel, ...args) => ipcRenderer.send(channel, ...args),
   on: (channel, callback) => {
-    ipcRenderer.on(channel, (_event, ...args) => callback(_event, ...args))
+    // 注意：只传递数据，不传递 _event 对象
+    ipcRenderer.on(channel, (_event, data) => callback(data))
+  },
+  off: (channel, callback) => {
+    ipcRenderer.removeListener(channel, callback)
   },
   removeListener: (channel, callback) => {
     ipcRenderer.removeListener(channel, callback)
-  }
+  },
+  
+  // 通用 IPC 调用（用于 IP 扫描器等工具）
+  invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args)
 })
 
 // 暴露 electronAPI 用於知識庫等功能

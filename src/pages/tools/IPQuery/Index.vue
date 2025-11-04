@@ -971,6 +971,27 @@ onUnmounted(() => {
   padding: var(--spacing-xl);
 }
 
+/* 🎨 霓虹风格滚动条 */
+.tool-page__content::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.tool-page__content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.tool-page__content::-webkit-scrollbar-thumb {
+  background: rgba(33, 230, 255, 0.5);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.tool-page__content::-webkit-scrollbar-thumb:hover {
+  background: rgba(33, 230, 255, 0.8);
+}
+
 .ip-query {
   display: grid;
   grid-template-columns: 1fr 1.5fr;

@@ -51,12 +51,14 @@
               </select>
             </div>
 
-            <NeonTextarea
-              v-model="inputText"
-              placeholder="请输入需要转换的文本..."
-              :rows="12"
-              @input="handleInputChange"
-            />
+            <div class="textarea-wrapper">
+              <NeonTextarea
+                v-model="inputText"
+                placeholder="请输入需要转换的文本..."
+                :rows="12"
+                @input="handleInputChange"
+              />
+            </div>
 
             <div class="info-section" v-if="inputText">
               <div class="info-item">
@@ -111,12 +113,14 @@
               </select>
             </div>
 
-            <NeonTextarea
-              v-model="outputText"
-              placeholder="转换结果将显示在这里..."
-              :rows="12"
-              readonly
-            />
+            <div class="textarea-wrapper">
+              <NeonTextarea
+                v-model="outputText"
+                placeholder="转换结果将显示在这里..."
+                :rows="12"
+                readonly
+              />
+            </div>
 
             <div class="info-section" v-if="outputText">
               <div class="info-item">
@@ -683,5 +687,16 @@ function clearAll() {
     padding-top: 0;
     transform: rotate(90deg);
   }
+}
+
+/* 🔧 固定高度确保滚动 */
+.textarea-wrapper {
+  height: 350px;
+  overflow: hidden;
+}
+
+.textarea-wrapper :deep(textarea) {
+  height: 100% !important;
+  min-height: 350px !important;
 }
 </style>

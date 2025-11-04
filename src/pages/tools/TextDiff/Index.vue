@@ -30,24 +30,28 @@
           <template #extra>
             <span class="char-count">{{ leftText.length }} 字符 / {{ leftText.split('\n').length }} 行</span>
           </template>
-          <NeonTextarea
-            v-model="leftText"
-            placeholder="请输入原文本..."
-            :rows="15"
-            @input="handleCompare"
-          />
+          <div class="textarea-wrapper">
+            <NeonTextarea
+              v-model="leftText"
+              placeholder="请输入原文本..."
+              :rows="15"
+              @input="handleCompare"
+            />
+          </div>
         </NeonCard>
 
         <NeonCard title="📝 新文本">
           <template #extra>
             <span class="char-count">{{ rightText.length }} 字符 / {{ rightText.split('\n').length }} 行</span>
           </template>
-          <NeonTextarea
-            v-model="rightText"
-            placeholder="请输入新文本..."
-            :rows="15"
-            @input="handleCompare"
-          />
+          <div class="textarea-wrapper">
+            <NeonTextarea
+              v-model="rightText"
+              placeholder="请输入新文本..."
+              :rows="15"
+              @input="handleCompare"
+            />
+          </div>
         </NeonCard>
       </div>
 
@@ -281,17 +285,32 @@ function clearAll() {
 }
 
 .stat-item.added {
-  background: rgba(48, 255, 147, 0.1);
+  background: rgba(48, 255, 147, 0.15);
+  color: #fff;
+  border: 1px solid rgba(48, 255, 147, 0.3);
+}
+
+.stat-item.added .stat-label {
   color: #30ff93;
 }
 
 .stat-item.removed {
-  background: rgba(255, 42, 161, 0.1);
+  background: rgba(255, 42, 161, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 42, 161, 0.3);
+}
+
+.stat-item.removed .stat-label {
   color: var(--neon-pink);
 }
 
 .stat-item.unchanged {
-  background: rgba(138, 164, 199, 0.1);
+  background: rgba(138, 164, 199, 0.15);
+  color: #fff;
+  border: 1px solid rgba(138, 164, 199, 0.3);
+}
+
+.stat-item.unchanged .stat-label {
   color: var(--color-muted);
 }
 
@@ -321,11 +340,13 @@ function clearAll() {
 }
 
 .diff-added {
-  background: rgba(48, 255, 147, 0.1);
+  background: rgba(48, 255, 147, 0.08);
+  border-left: 3px solid #30ff93;
 }
 
 .diff-removed {
-  background: rgba(255, 42, 161, 0.1);
+  background: rgba(255, 42, 161, 0.08);
+  border-left: 3px solid var(--neon-pink);
 }
 
 .line-number {
@@ -402,6 +423,57 @@ function clearAll() {
 
 .mr-2 {
   margin-right: 8px;
+}
+
+/* 🔧 固定高度确保滚动 */
+.textarea-wrapper {
+  height: 450px;
+  overflow: hidden;
+}
+
+.textarea-wrapper :deep(textarea) {
+  height: 100% !important;
+  min-height: 450px !important;
+}
+
+/* 🎨 霓虹风格滚动条 */
+.diff-display::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.diff-display::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.diff-display::-webkit-scrollbar-thumb {
+  background: rgba(33, 230, 255, 0.5);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.diff-display::-webkit-scrollbar-thumb:hover {
+  background: rgba(33, 230, 255, 0.8);
+}
+
+/* 输入框滚动条 */
+.textarea-wrapper :deep(textarea)::-webkit-scrollbar {
+  width: 8px;
+}
+
+.textarea-wrapper :deep(textarea)::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.textarea-wrapper :deep(textarea)::-webkit-scrollbar-thumb {
+  background: rgba(33, 230, 255, 0.5);
+  border-radius: 4px;
+}
+
+.textarea-wrapper :deep(textarea)::-webkit-scrollbar-thumb:hover {
+  background: rgba(33, 230, 255, 0.8);
 }
 </style>
 

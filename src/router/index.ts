@@ -3,14 +3,14 @@ import MainLayout from '@/layouts/MainLayout.vue'
 
 // 预加载所有页面组件
 import Home from '@/pages/Home/Index.vue'
-import JsonFormatter from '@/pages/tools/JsonFormatter/Index.vue'
+import JsonFormatter from '@/pages/tools/JsonFormatter/IndexCompact.vue'
 import XmlYaml from '@/pages/tools/XmlYaml/Index.vue'
 import SqlFormatter from '@/pages/tools/SqlFormatter/Index.vue'
 import TextDiff from '@/pages/tools/TextDiff/Index.vue'
 import Regex from '@/pages/tools/Regex/Index.vue'
 import DocToMarkdown from '@/pages/tools/DocToMarkdown/Index.vue'
-import Base64 from '@/pages/tools/Base64/Index.vue'
-import UrlEncoder from '@/pages/tools/UrlEncoder/Index.vue'
+import Base64 from '@/pages/tools/Base64/IndexCompact.vue'
+import UrlEncoder from '@/pages/tools/UrlEncoder/IndexCompact.vue'
 import Hash from '@/pages/tools/Hash/Index.vue'
 import Encrypt from '@/pages/tools/Encrypt/Index.vue'
 import Unicode from '@/pages/tools/Unicode/Index.vue'
@@ -33,9 +33,19 @@ import Snippets from '@/pages/tools/Snippets/Index.vue'
 import Entertainment from '@/pages/tools/Entertainment/Index.vue'
 import Encoding from '@/pages/tools/Encoding/Index.vue'
 import PortScanner from '@/pages/tools/PortScanner/Index.vue'
+import IPScanner from '@/pages/tools/ip-scanner/Index.vue'
+import WebSocketTool from '@/pages/tools/WebSocket/Index.vue'
 import ClipboardHistory from '@/pages/tools/ClipboardHistory/Index.vue'
 import Screenshot from '@/pages/tools/Screenshot/Index.vue'
 import SystemMonitor from '@/pages/tools/SystemMonitor/Index.vue'
+import Weather from '@/pages/tools/Weather/Index.vue'
+import Bookmarks from '@/pages/tools/Bookmarks/Index.vue'
+import UnitConverter from '@/pages/tools/UnitConverter/Index.vue'
+import ColorConverter from '@/pages/tools/ColorConverter/Index.vue'
+import ImageCompressor from '@/pages/tools/ImageCompressor/Index.vue'
+import ImageConverter from '@/pages/tools/ImageConverter/Index.vue'
+import ImageCropper from '@/pages/tools/ImageCropper/Index.vue'
+import FileHash from '@/pages/tools/FileHash/Index.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -188,6 +198,17 @@ const routes: RouteRecordRaw[] = [
           category: '编码加密',
         }
       },
+      {
+        path: 'tools/file-hash',
+        name: 'FileHash',
+        component: FileHash,
+        meta: {
+          title: '文件哈希校验',
+          description: '计算文件 MD5、SHA-1、SHA-256、SHA-512 哈希值',
+          icon: 'i-mdi-shield-check',
+          category: '编码加密',
+        }
+      },
       
       // ========== 认证安全 ==========
       {
@@ -269,6 +290,61 @@ const routes: RouteRecordRaw[] = [
           description: '文本、URL 生成二维码',
           icon: 'i-mdi-qrcode',
           category: '开发工具',
+        }
+      },
+      {
+        path: 'tools/unit-converter',
+        name: 'UnitConverter',
+        component: UnitConverter,
+        meta: {
+          title: '单位换算器',
+          description: '长度、重量、温度、面积、体积、时间、存储、速度等单位互转',
+          icon: 'i-mdi-swap-horizontal',
+          category: '开发工具',
+        }
+      },
+      {
+        path: 'tools/color-converter',
+        name: 'ColorConverter',
+        component: ColorConverter,
+        meta: {
+          title: '颜色转换器',
+          description: 'HEX、RGB、HSL、RGBA、HSLA 颜色格式互转，霓虹色板预设',
+          icon: 'i-mdi-palette',
+          category: '开发工具',
+        }
+      },
+      {
+        path: 'tools/image-compressor',
+        name: 'ImageCompressor',
+        component: ImageCompressor,
+        meta: {
+          title: '图片压缩',
+          description: '在线压缩 JPG/PNG/WebP 图片，减小文件大小',
+          icon: 'i-mdi-image-size-select-actual',
+          category: '图片工具',
+        }
+      },
+      {
+        path: 'tools/image-converter',
+        name: 'ImageConverter',
+        component: ImageConverter,
+        meta: {
+          title: '图片格式转换',
+          description: '在线转换 JPG、PNG、WebP、GIF 图片格式',
+          icon: 'i-mdi-image-sync',
+          category: '图片工具',
+        }
+      },
+      {
+        path: 'tools/image-cropper',
+        name: 'ImageCropper',
+        component: ImageCropper,
+        meta: {
+          title: '图片裁剪缩放',
+          description: '裁剪图片、调整尺寸、支持多种预设比例',
+          icon: 'i-mdi-crop',
+          category: '图片工具',
         }
       },
       
@@ -363,6 +439,28 @@ const routes: RouteRecordRaw[] = [
           category: '网络工具',
         }
       },
+      {
+        path: 'tools/ip-scanner',
+        name: 'IPScanner',
+        component: IPScanner,
+        meta: {
+          title: 'IP 扫描器',
+          description: '扫描局域网中的 IP 地址使用情况',
+          icon: 'i-mdi-ip-network-outline',
+          category: '网络工具',
+        }
+      },
+      {
+        path: 'tools/websocket',
+        name: 'WebSocket',
+        component: WebSocketTool,
+        meta: {
+          title: 'WebSocket 测试',
+          description: '连接 WebSocket 服务器，测试实时通信功能',
+          icon: 'i-mdi-connection',
+          category: '网络工具',
+        }
+      },
       
       // ========== 实用工具 ==========
       {
@@ -398,6 +496,17 @@ const routes: RouteRecordRaw[] = [
           category: '实用工具',
         }
       },
+      {
+        path: 'tools/weather',
+        name: 'Weather',
+        component: Weather,
+        meta: {
+          title: '天气查询',
+          description: '查看多个城市的实时天气和天气预报',
+          icon: 'i-mdi-weather-partly-cloudy',
+          category: '实用工具',
+        }
+      },
       
       // ========== 知识管理 ==========
       {
@@ -419,6 +528,17 @@ const routes: RouteRecordRaw[] = [
           title: '代码片段',
           description: '管理和使用你的代码片段',
           icon: 'i-mdi-code-braces-box',
+          category: '知识管理',
+        }
+      },
+      {
+        path: 'tools/bookmarks',
+        name: 'Bookmarks',
+        component: Bookmarks,
+        meta: {
+          title: '网页收藏夹',
+          description: '管理你的常用网站和资源链接',
+          icon: 'i-mdi-bookmark-multiple',
           category: '知识管理',
         }
       },
@@ -466,9 +586,9 @@ router.beforeEach((to, _from, next) => {
 
   // 更新页面标题
   if (to.meta.title) {
-    document.title = `${to.meta.title} - 牛马工具`
+    document.title = `${to.meta.title} - IWork`
   } else {
-    document.title = '牛马工具'
+    document.title = 'IWork'
   }
   
   next()

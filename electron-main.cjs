@@ -17,17 +17,17 @@ const isDev = !app.isPackaged
 
 // 1. 设置应用名称（显示在任务管理器和通知中心）
 // 必须与package.json和electron-builder.json中的productName一致
-app.setName('牛马工具集')
+app.setName('IWork')
 
 // 2. 设置App User Model ID (Windows专用)
 // 参考：https://www.electronjs.org/docs/latest/tutorial/windows-taskbar
 // 用于Windows任务栏分组和通知，必须保持稳定不变
 // 格式：CompanyName.ProductName.SubProduct.VersionInformation
-const appId = 'com.nmtool.app'
+const appId = 'com.iwork.app'
 if (process.platform === 'win32') {
   app.setAppUserModelId(appId)
   // 强制设置进程标题，确保任务栏显示应用名
-  process.title = app.getName()
+  process.title = 'IWork'
 }
 console.log('🔧 Product Name:', app.getName())
 console.log('🔧 App User Model ID:', appId)
@@ -154,7 +154,7 @@ function getDataPath() {
     basePath = __dirname
   } else {
     // 生产模式：使用安装目录（可执行文件所在目录）
-    // 例如：C:\Users\用户名\AppData\Local\Programs\牛马工具集
+    // 例如：C:\Users\用户名\AppData\Local\Programs\IWork
     basePath = path.dirname(process.execPath)
   }
   
@@ -251,7 +251,7 @@ function createWindow() {
     height: 800,
     minWidth: 1024,
     minHeight: 600,
-    title: '牛马工具集',  // 窗口标题（任务管理器显示）
+    title: 'IWork',  // 窗口标题（任务管理器显示）
     icon: appIcon,  // 窗口图标（任务栏和Alt+Tab显示）
     backgroundColor: '#0a0e27',
     webPreferences: {
@@ -259,7 +259,7 @@ function createWindow() {
       contextIsolation: true,
       devTools: true,
       preload: preloadPath,
-      webSecurity: true, // 保持 Web 安全，仅在需要时通过 session 配置
+      webSecurity: false, // 🌤️ 禁用 web 安全以允许天气 API 请求
     },
     frame: true,
     show: false,
@@ -269,7 +269,7 @@ function createWindow() {
   mainWindow.on('page-title-updated', (event) => {
     event.preventDefault()
     if (!mainWindow.isDestroyed()) {
-      mainWindow.setTitle('牛马工具集')
+      mainWindow.setTitle('IWork')
     }
   })
 
@@ -303,7 +303,7 @@ function createWindow() {
       }
       
       // 设置窗口标题（任务管理器显示）
-      mainWindow.setTitle('牛马工具集')
+      mainWindow.setTitle('IWork')
       
       // 可选：设置任务栏覆盖图标（用于显示状态，如通知数量）
       // mainWindow.setOverlayIcon(overlayIcon, 'Description')
@@ -441,7 +441,7 @@ function createMenu() {
       label: '帮助',
       submenu: [
         {
-          label: '关于牛马工具',
+          label: '关于 IWork',
           click: () => {
             const { shell } = require('electron')
             shell.openExternal('https://github.com')
@@ -579,11 +579,24 @@ function createPinWindow(imageData, bounds, filepath) {
   console.log('📌 [Pin Window] Preload path:', preloadPath)
   console.log('📌 [Pin Window] Preload exists:', fs.existsSync(preloadPath))
   
+  // 🔧 获取应用图标
+  const iconPath = getIconPath()
+  let appIcon = undefined
+  try {
+    if (fs.existsSync(iconPath)) {
+      appIcon = nativeImage.createFromPath(iconPath)
+    }
+  } catch (error) {
+    console.error('❌ Error loading icon for pin window:', error)
+  }
+
   const pinWindow = new BrowserWindow({
     width: bounds.width,
     height: bounds.height,
     x: bounds.x,
     y: bounds.y,
+    title: 'IWork - 置顶截图',  // 🔧 设置窗口标题
+    icon: appIcon,  // 🔧 设置窗口图标
     frame: false,
     transparent: true,
     alwaysOnTop: true,
@@ -1042,7 +1055,9 @@ function registerScreenshotHotkey() {
       console.log('📝 [Screenshots] Registering hotkey:', hotkey)
       
       const registered = globalShortcut.register(hotkey, () => {
-        console.log('📸 [Screenshots] Hotkey triggered:', hotkey)
+        console.log('🎯🎯🎯 [Screenshots] ===== HOTKEY TRIGGERED ===== 🎯🎯🎯')
+        console.log('📸 [Screenshots] Hotkey pressed:', hotkey)
+        console.log('📸 [Screenshots] Time:', new Date().toLocaleTimeString())
         
         // 🔧 修复：使用和按钮相同的状态检查逻辑
         if (!screenshots) {
@@ -2356,6 +2371,217 @@ const net = require('net')
 
 // ========== 系统监控工具 ==========
 const os = require('os')
+
+// ========== IP 扫描工具 ==========
+/**
+ * 扫描 IP 段中的所有 IP
+ * @param {string} ipPrefix - IP 前缀，例如 "192.168.10"
+ * @param {number} timeout - 超时时间（毫秒）
+ */
+ipcMain.handle('ip-scanner:scan', async (_event, ipPrefix, timeout = 1000) => {
+  return new Promise(async (resolve) => {
+    try {
+      console.log(`🔍 [IP Scanner] Scanning IP range: ${ipPrefix}.1-254`)
+      
+      const results = []
+      const isWindows = process.platform === 'win32'
+      
+      // 扫描 1-254（总共 254 个 IP）
+      const scanPromises = []
+      const BATCH_SIZE = 20
+      
+      for (let i = 1; i <= 254; i++) {
+        const ip = `${ipPrefix}.${i}`
+        const currentIndex = i // 保存当前索引，避免闭包问题
+        
+        // 创建 ping 扫描 Promise
+        const scanPromise = new Promise((resolveIp) => {
+          const args = isWindows
+            ? ['/c', 'ping', '-n', '1', '-w', timeout.toString(), ip]
+            : ['-c', '1', '-W', (timeout / 1000).toString(), ip]
+          
+          const pingCmd = isWindows ? 'cmd' : 'ping'
+          const child = spawn(pingCmd, args, { 
+            shell: false,
+            windowsHide: true, // Windows 下隐藏命令行窗口
+            encoding: 'utf8'
+          })
+          
+          let output = ''
+          
+          child.stdout.on('data', (data) => {
+            output += data.toString()
+          })
+          
+          child.on('close', (code) => {
+            // 更严格的在线判断：
+            // 1. Windows: 必须包含 "TTL=" 且不包含失败标识
+            // 2. Linux/Mac: code 为 0 或包含 ttl=
+            let isOnline = false
+            
+            if (isWindows) {
+              // Windows 中文/英文系统判断
+              const hasTTL = output.includes('TTL=') || output.includes('ttl=')
+              const hasFailure = output.includes('请求超时') || 
+                                 output.includes('无法访问') || 
+                                 output.includes('传输失败') ||
+                                 output.includes('Request timed out') ||
+                                 output.includes('Destination host unreachable') ||
+                                 output.includes('General failure')
+              
+              isOnline = hasTTL && !hasFailure
+            } else {
+              // Linux/Mac
+              isOnline = code === 0 || output.includes('ttl=')
+            }
+            
+            const responseTime = isOnline ? extractPingTime(output, isWindows) : null
+            
+            // 调试日志（仅显示前几个和在线的）
+            if (currentIndex <= 5 || isOnline) {
+              console.log(`[IP ${ip}] code=${code}, isOnline=${isOnline}, time=${responseTime}`)
+              console.log(`   output: ${output.substring(0, 150)}`)
+            }
+            
+            // 实时发送进度到前端（包含响应时间）
+            if (mainWindow) {
+              mainWindow.webContents.send('ip-scanner:progress', {
+                ip,
+                isOnline,
+                responseTime,
+                current: currentIndex,
+                total: 254
+              })
+            }
+            
+            resolveIp({
+              ip,
+              isOnline,
+              responseTime
+            })
+          })
+          
+          child.on('error', () => {
+            if (mainWindow) {
+              mainWindow.webContents.send('ip-scanner:progress', {
+                ip,
+                isOnline: false,
+                responseTime: null,
+                current: currentIndex,
+                total: 254
+              })
+            }
+            
+            resolveIp({
+              ip,
+              isOnline: false,
+              responseTime: null
+            })
+          })
+        })
+        
+        scanPromises.push(scanPromise)
+        
+        // 每次最多并发 BATCH_SIZE 个，避免系统资源耗尽
+        if (scanPromises.length >= BATCH_SIZE) {
+          const batchResults = await Promise.all(scanPromises)
+          results.push(...batchResults)
+          scanPromises.length = 0 // 清空数组
+        }
+      }
+      
+      // 处理最后一批（如果有剩余）
+      if (scanPromises.length > 0) {
+        const batchResults = await Promise.all(scanPromises)
+        results.push(...batchResults)
+      }
+      
+      // 统计结果
+      const onlineIPs = results.filter(r => r.isOnline)
+      const offlineIPs = results.filter(r => !r.isOnline)
+      
+      console.log(`✅ [IP Scanner] Scan completed:`)
+      console.log(`   Total results: ${results.length}`)
+      console.log(`   Online: ${onlineIPs.length}`)
+      console.log(`   Offline: ${offlineIPs.length}`)
+      
+      // 发送完成事件
+      if (mainWindow) {
+        mainWindow.webContents.send('ip-scanner:complete', {
+          onlineCount: onlineIPs.length,
+          offlineCount: offlineIPs.length
+        })
+      }
+      
+      resolve({
+        success: true,
+        data: {
+          results,
+          onlineIPs,
+          offlineIPs,
+          summary: {
+            total: results.length,
+            online: onlineIPs.length,
+            offline: offlineIPs.length
+          }
+        }
+      })
+    } catch (error) {
+      console.error('❌ [IP Scanner] Scan error:', error)
+      resolve({ success: false, error: error.message })
+    }
+  })
+})
+
+/**
+ * 从 Ping 输出中提取响应时间
+ */
+function extractPingTime(output, isWindows) {
+  try {
+    if (isWindows) {
+      // Windows 中文系统：
+      // "时间=1ms" 或 "时间<1ms"
+      let match = output.match(/时间[=<](\d+)ms/i)
+      if (match) {
+        return parseInt(match[1])
+      }
+      
+      // Windows 英文系统：
+      // "time=1ms" 或 "time<1ms"
+      match = output.match(/time[=<](\d+)ms/i)
+      if (match) {
+        return parseInt(match[1])
+      }
+      
+      // Windows 中文系统（带空格）：
+      // "时间 = 1ms"
+      match = output.match(/时间\s*[=<]\s*(\d+)\s*ms/i)
+      if (match) {
+        return parseInt(match[1])
+      }
+      
+      // 通用匹配（最后尝试）：匹配任何 "数字ms" 模式
+      match = output.match(/(\d+)\s*ms/i)
+      if (match) {
+        return parseInt(match[1])
+      }
+    } else {
+      // Linux/Mac: "time=1.234 ms"
+      const match = output.match(/time=([\d.]+)\s*ms/i)
+      if (match) {
+        return Math.round(parseFloat(match[1]))
+      }
+    }
+    
+    // 调试：如果没有匹配成功，打印输出以便分析
+    if (output.includes('TTL') || output.includes('ttl')) {
+      console.log('⚠️ [IP Scanner] Failed to extract time from output:', output.substring(0, 200))
+    }
+  } catch (err) {
+    console.error('❌ [IP Scanner] Error extracting ping time:', err)
+  }
+  return null
+}
 
 /**
  * 扫描单个端口

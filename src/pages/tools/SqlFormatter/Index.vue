@@ -88,11 +88,13 @@
             <template #extra>
               <span class="char-count">{{ sqlInput.length }} 字符</span>
             </template>
-            <NeonTextarea
-              v-model="sqlInput"
-              placeholder="粘贴 SQL 语句到这里..."
-              :rows="18"
-            />
+            <div class="textarea-wrapper">
+              <NeonTextarea
+                v-model="sqlInput"
+                placeholder="粘贴 SQL 语句到这里..."
+                :rows="18"
+              />
+            </div>
           </NeonCard>
 
           <!-- SQL 输出 -->
@@ -353,6 +355,17 @@ function clearAll() {
 
 .mr-2 {
   margin-right: 8px;
+}
+
+/* 🔧 固定高度确保滚动 */
+.textarea-wrapper {
+  height: 500px;
+  overflow: hidden;
+}
+
+.textarea-wrapper :deep(textarea) {
+  height: 100% !important;
+  min-height: 500px !important;
 }
 </style>
 

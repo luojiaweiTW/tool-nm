@@ -131,11 +131,13 @@
             <template #extra>
               <span class="char-count">{{ inputText.length }} 字符</span>
             </template>
-            <NeonTextarea
-              v-model="inputText"
-              :placeholder="operation === 'encrypt' ? '请输入要加密的文本...' : '请输入要解密的密文...'"
-              :rows="12"
-            />
+            <div class="textarea-wrapper">
+              <NeonTextarea
+                v-model="inputText"
+                :placeholder="operation === 'encrypt' ? '请输入要加密的文本...' : '请输入要解密的密文...'"
+                :rows="12"
+              />
+            </div>
           </NeonCard>
 
           <!-- 输出 -->
@@ -482,6 +484,17 @@ function clearAll() {
 
 .mr-2 {
   margin-right: 8px;
+}
+
+/* 🔧 固定高度确保滚动 */
+.textarea-wrapper {
+  height: 350px;
+  overflow: hidden;
+}
+
+.textarea-wrapper :deep(textarea) {
+  height: 100% !important;
+  min-height: 350px !important;
 }
 </style>
 

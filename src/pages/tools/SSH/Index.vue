@@ -317,7 +317,7 @@
         </div>
 
         <!-- 连接列表 -->
-        <div class="history-list">
+        <div class="history-list scrollbar-thin">
           <el-empty 
             v-if="filteredHistory.length === 0 && connectionHistory.length === 0"
             description="暂无连接记录"
@@ -3933,7 +3933,7 @@ onBeforeUnmount(() => {
 }
 
 .history-list {
-  max-height: 500px;
+  max-height: calc(70vh - 100px); /* 🔧 响应式高度 */
   overflow-y: auto;
 }
 

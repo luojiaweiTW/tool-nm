@@ -143,7 +143,7 @@ const handleClick = (event: MouseEvent) => {
 
 /* ========== Primary 变体 (Cyan) ========== */
 .neon-button--primary {
-  background-color: transparent;
+  background-color: rgba(33, 230, 255, 0.15);  /* 添加半透明背景，更明显 */
   color: var(--neon-cyan);
   border: 3px solid var(--neon-cyan);
   box-shadow: inset 0 0 20px rgba(33, 230, 255, 0.3), var(--glow-cyan);
@@ -153,7 +153,7 @@ const handleClick = (event: MouseEvent) => {
 }
 
 .neon-button--primary:hover:not(.neon-button--disabled):not(.neon-button--loading) {
-  background-color: rgba(33, 230, 255, 0.2);
+  background-color: rgba(33, 230, 255, 0.3);  /* 悬停时背景更明显 */
   border-color: var(--neon-cyan-light);
   box-shadow: inset 0 0 30px rgba(33, 230, 255, 0.5), var(--glow-cyan-strong);
   transform: translateY(-2px);

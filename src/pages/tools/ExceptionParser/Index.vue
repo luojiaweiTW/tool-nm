@@ -92,11 +92,13 @@
             <template #extra>
               <span class="char-count">{{ stackInput.split('\n').length }} 行</span>
             </template>
-            <NeonTextarea
-              v-model="stackInput"
-              placeholder="粘贴 Java 异常堆栈信息到这里..."
-              :rows="15"
-            />
+            <div class="textarea-wrapper">
+              <NeonTextarea
+                v-model="stackInput"
+                placeholder="粘贴 Java 异常堆栈信息到这里..."
+                :rows="15"
+              />
+            </div>
           </NeonCard>
 
           <!-- 分析结果 -->
@@ -580,6 +582,17 @@ function clearAll() {
 
 .mr-2 {
   margin-right: 8px;
+}
+
+/* 🔧 固定高度确保滚动 */
+.textarea-wrapper {
+  height: 450px;
+  overflow: hidden;
+}
+
+.textarea-wrapper :deep(textarea) {
+  height: 100% !important;
+  min-height: 450px !important;
 }
 </style>
 

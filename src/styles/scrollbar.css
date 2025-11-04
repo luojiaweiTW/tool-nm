@@ -1,0 +1,252 @@
+/* ========================================
+   📜 全局滚动条样式
+   ======================================== */
+
+/* 通用滚动条样式 */
+.scrollbar {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(33, 230, 255, 0.3);
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(33, 230, 255, 0.5);
+}
+
+.scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* 细滚动条变体 */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+/* 隐藏滚动条但保持可滚动 */
+.scrollbar-hidden {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/* ========================================
+   📦 响应式容器工具类
+   ======================================== */
+
+/* 自适应高度容器（避免固定高度） */
+.container-fluid {
+  width: 100%;
+  max-height: 100%;
+  overflow: auto;
+}
+
+/* 对话框内容容器 - 限制最大高度并添加滚动 */
+.dialog-content {
+  max-height: calc(80vh - 120px); /* 减去header和footer的高度 */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.dialog-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dialog-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.dialog-content::-webkit-scrollbar-thumb {
+  background: rgba(33, 230, 255, 0.3);
+  border-radius: 3px;
+}
+
+.dialog-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(33, 230, 255, 0.5);
+}
+
+/* 列表容器 - 自适应高度 */
+.list-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md, 12px);
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: var(--spacing-sm, 8px);
+}
+
+/* 卡片列表网格 - 响应式 */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-md, 16px);
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: var(--spacing-sm, 8px);
+}
+
+/* 文本内容区域 - 避免溢出 */
+.text-content {
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  max-width: 100%;
+}
+
+/* 代码块 - 水平滚动 */
+.code-block {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 500px;
+  white-space: pre;
+}
+
+/* ========================================
+   🎯 Element Plus 对话框全局修复
+   ======================================== */
+
+/* 对话框主体自动滚动 */
+.el-dialog__body {
+  max-height: calc(80vh - 120px);
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.el-dialog__body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.el-dialog__body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.el-dialog__body::-webkit-scrollbar-thumb {
+  background: rgba(33, 230, 255, 0.3);
+  border-radius: 3px;
+}
+
+.el-dialog__body::-webkit-scrollbar-thumb:hover {
+  background: rgba(33, 230, 255, 0.5);
+}
+
+/* 大对话框 */
+.el-dialog.dialog-large {
+  width: 90vw !important;
+  max-width: 1200px;
+}
+
+.el-dialog.dialog-large .el-dialog__body {
+  max-height: calc(85vh - 120px);
+}
+
+/* 全屏对话框 */
+.el-dialog.dialog-fullscreen {
+  width: 95vw !important;
+  height: 95vh !important;
+}
+
+.el-dialog.dialog-fullscreen .el-dialog__body {
+  max-height: calc(95vh - 120px);
+  height: calc(95vh - 120px);
+}
+
+/* ========================================
+   📱 响应式断点
+   ======================================== */
+
+@media (max-width: 768px) {
+  .dialog-content,
+  .el-dialog__body {
+    max-height: calc(90vh - 100px);
+  }
+  
+  .list-container {
+    max-height: 70vh;
+  }
+  
+  .cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    max-height: 80vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========================================
+   🔧 工具类
+   ======================================== */
+
+/* 强制显示滚动条（调试用） */
+.show-scrollbar {
+  overflow-y: scroll !important;
+}
+
+/* 阻止内容溢出 */
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.overflow-auto {
+  overflow: auto;
+}
+
+.overflow-y-auto {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.overflow-x-auto {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* 文本溢出省略 */
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-ellipsis-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.text-ellipsis-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+

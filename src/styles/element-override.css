@@ -95,6 +95,11 @@
   box-shadow: 0 0 12px rgba(33, 230, 255, 0.5);
 }
 
+.el-button--primary i,
+.el-button--primary .el-icon {
+  color: #0a0f1e !important;
+}
+
 .el-button--primary:hover {
   background-color: #5ff0ff !important;
   border-color: #5ff0ff !important;
@@ -114,6 +119,11 @@
   box-shadow: 0 0 12px rgba(208, 255, 0, 0.5);
 }
 
+.el-button--success i,
+.el-button--success .el-icon {
+  color: #0a0f1e !important;
+}
+
 .el-button--success:hover {
   background-color: #dcff33 !important;
   border-color: #dcff33 !important;
@@ -126,6 +136,11 @@
   border-color: var(--neon-yellow) !important;
   color: #0a0f1e !important;
   box-shadow: 0 0 12px rgba(255, 230, 0, 0.5);
+}
+
+.el-button--warning i,
+.el-button--warning .el-icon {
+  color: #0a0f1e !important;
 }
 
 .el-button--warning:hover {
@@ -142,10 +157,128 @@
   box-shadow: 0 0 12px rgba(255, 42, 161, 0.5);
 }
 
+/* 确保图标也是白色 - 使用更强的选择器，包括 UnoCSS 图标 */
+.el-button--danger i,
+.el-button--danger .el-icon,
+.el-button--danger svg,
+.el-button--danger [class*="i-"],
+.el-button--danger [class*="icon"] {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+/* 针对 UnoCSS 图标的伪元素 */
+.el-button--danger [class*="i-"]::before,
+.el-button--danger [class*="i-"]::after {
+  color: #ffffff !important;
+  background-color: #ffffff !important;
+}
+
 .el-button--danger:hover {
   background-color: #ff54b3 !important;
   border-color: #ff54b3 !important;
   box-shadow: 0 0 20px rgba(255, 42, 161, 0.8);
+}
+
+.el-button--danger:hover i,
+.el-button--danger:hover .el-icon,
+.el-button--danger:hover svg,
+.el-button--danger:hover [class*="i-"],
+.el-button--danger:hover [class*="icon"] {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+/* 针对 UnoCSS 图标的伪元素 hover 状态 */
+.el-button--danger:hover [class*="i-"]::before,
+.el-button--danger:hover [class*="i-"]::after {
+  color: #ffffff !important;
+  background-color: #ffffff !important;
+}
+
+/* Danger Text 按钮 - 粉色文字 */
+.el-button--danger.is-text {
+  color: var(--neon-pink) !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+.el-button--danger.is-text i,
+.el-button--danger.is-text .el-icon,
+.el-button--danger.is-text svg,
+.el-button--danger.is-text [class*="i-"],
+.el-button--danger.is-text [class*="icon"] {
+  color: var(--neon-pink) !important;
+  fill: var(--neon-pink) !important;
+}
+
+.el-button--danger.is-text [class*="i-"]::before,
+.el-button--danger.is-text [class*="i-"]::after {
+  color: var(--neon-pink) !important;
+  background-color: var(--neon-pink) !important;
+}
+
+.el-button--danger.is-text:hover {
+  color: #ff54b3 !important;
+  background: rgba(255, 42, 161, 0.1) !important;
+}
+
+.el-button--danger.is-text:hover i,
+.el-button--danger.is-text:hover .el-icon,
+.el-button--danger.is-text:hover svg,
+.el-button--danger.is-text:hover [class*="i-"],
+.el-button--danger.is-text:hover [class*="icon"] {
+  color: #ff54b3 !important;
+  fill: #ff54b3 !important;
+}
+
+.el-button--danger.is-text:hover [class*="i-"]::before,
+.el-button--danger.is-text:hover [class*="i-"]::after {
+  color: #ff54b3 !important;
+  background-color: #ff54b3 !important;
+}
+
+/* Danger Plain 按钮 - 粉色边框和文字，透明背景 */
+.el-button--danger.is-plain {
+  color: var(--neon-pink) !important;
+  background: transparent !important;
+  border-color: var(--neon-pink) !important;
+}
+
+.el-button--danger.is-plain i,
+.el-button--danger.is-plain .el-icon,
+.el-button--danger.is-plain svg,
+.el-button--danger.is-plain [class*="i-"],
+.el-button--danger.is-plain [class*="icon"] {
+  color: var(--neon-pink) !important;
+  fill: var(--neon-pink) !important;
+}
+
+.el-button--danger.is-plain [class*="i-"]::before,
+.el-button--danger.is-plain [class*="i-"]::after {
+  color: var(--neon-pink) !important;
+  background-color: var(--neon-pink) !important;
+}
+
+.el-button--danger.is-plain:hover {
+  color: #ffffff !important;
+  background: var(--neon-pink) !important;
+  border-color: var(--neon-pink) !important;
+}
+
+.el-button--danger.is-plain:hover i,
+.el-button--danger.is-plain:hover .el-icon,
+.el-button--danger.is-plain:hover svg,
+.el-button--danger.is-plain:hover [class*="i-"],
+.el-button--danger.is-plain:hover [class*="icon"] {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+.el-button--danger.is-plain:hover [class*="i-"]::before,
+.el-button--danger.is-plain:hover [class*="i-"]::after {
+  color: #ffffff !important;
+  background-color: #ffffff !important;
 }
 
 /* Info 按钮 - 紫色背景，白色文字 */
@@ -156,10 +289,203 @@
   box-shadow: 0 0 12px rgba(155, 92, 255, 0.5);
 }
 
+.el-button--info i,
+.el-button--info .el-icon {
+  color: #ffffff !important;
+}
+
 .el-button--info:hover {
   background-color: #ad7dff !important;
   border-color: #ad7dff !important;
   box-shadow: 0 0 20px rgba(155, 92, 255, 0.8);
+}
+
+/* ============================================
+   Plain 和 Text 按钮变体样式
+   ============================================ */
+
+/* Primary Plain 按钮 */
+.el-button--primary.is-plain {
+  color: var(--neon-cyan) !important;
+  background: transparent !important;
+  border-color: var(--neon-cyan) !important;
+}
+
+.el-button--primary.is-plain i,
+.el-button--primary.is-plain .el-icon,
+.el-button--primary.is-plain [class*="i-"] {
+  color: var(--neon-cyan) !important;
+}
+
+.el-button--primary.is-plain [class*="i-"]::before,
+.el-button--primary.is-plain [class*="i-"]::after {
+  color: var(--neon-cyan) !important;
+  background-color: var(--neon-cyan) !important;
+}
+
+.el-button--primary.is-plain:hover {
+  color: #0a0f1e !important;
+  background: var(--neon-cyan) !important;
+  border-color: var(--neon-cyan) !important;
+}
+
+.el-button--primary.is-plain:hover i,
+.el-button--primary.is-plain:hover .el-icon,
+.el-button--primary.is-plain:hover [class*="i-"] {
+  color: #0a0f1e !important;
+}
+
+.el-button--primary.is-plain:hover [class*="i-"]::before,
+.el-button--primary.is-plain:hover [class*="i-"]::after {
+  color: #0a0f1e !important;
+  background-color: #0a0f1e !important;
+}
+
+/* Primary Text 按钮 */
+.el-button--primary.is-text {
+  color: var(--neon-cyan) !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+.el-button--primary.is-text i,
+.el-button--primary.is-text .el-icon,
+.el-button--primary.is-text [class*="i-"] {
+  color: var(--neon-cyan) !important;
+}
+
+.el-button--primary.is-text:hover {
+  color: #5ff0ff !important;
+  background: rgba(33, 230, 255, 0.1) !important;
+}
+
+/* Success Plain 按钮 */
+.el-button--success.is-plain {
+  color: var(--neon-lime) !important;
+  background: transparent !important;
+  border-color: var(--neon-lime) !important;
+}
+
+.el-button--success.is-plain i,
+.el-button--success.is-plain .el-icon,
+.el-button--success.is-plain [class*="i-"] {
+  color: var(--neon-lime) !important;
+}
+
+.el-button--success.is-plain:hover {
+  color: #0a0f1e !important;
+  background: var(--neon-lime) !important;
+  border-color: var(--neon-lime) !important;
+}
+
+.el-button--success.is-plain:hover i,
+.el-button--success.is-plain:hover .el-icon,
+.el-button--success.is-plain:hover [class*="i-"] {
+  color: #0a0f1e !important;
+}
+
+/* Success Text 按钮 */
+.el-button--success.is-text {
+  color: var(--neon-lime) !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+.el-button--success.is-text i,
+.el-button--success.is-text .el-icon,
+.el-button--success.is-text [class*="i-"] {
+  color: var(--neon-lime) !important;
+}
+
+.el-button--success.is-text:hover {
+  color: #dcff33 !important;
+  background: rgba(208, 255, 0, 0.1) !important;
+}
+
+/* Warning Plain 按钮 */
+.el-button--warning.is-plain {
+  color: var(--neon-yellow) !important;
+  background: transparent !important;
+  border-color: var(--neon-yellow) !important;
+}
+
+.el-button--warning.is-plain i,
+.el-button--warning.is-plain .el-icon,
+.el-button--warning.is-plain [class*="i-"] {
+  color: var(--neon-yellow) !important;
+}
+
+.el-button--warning.is-plain:hover {
+  color: #0a0f1e !important;
+  background: var(--neon-yellow) !important;
+  border-color: var(--neon-yellow) !important;
+}
+
+.el-button--warning.is-plain:hover i,
+.el-button--warning.is-plain:hover .el-icon,
+.el-button--warning.is-plain:hover [class*="i-"] {
+  color: #0a0f1e !important;
+}
+
+/* Warning Text 按钮 */
+.el-button--warning.is-text {
+  color: var(--neon-yellow) !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+.el-button--warning.is-text i,
+.el-button--warning.is-text .el-icon,
+.el-button--warning.is-text [class*="i-"] {
+  color: var(--neon-yellow) !important;
+}
+
+.el-button--warning.is-text:hover {
+  color: #ffed33 !important;
+  background: rgba(255, 230, 0, 0.1) !important;
+}
+
+/* Info Plain 按钮 */
+.el-button--info.is-plain {
+  color: var(--neon-purple) !important;
+  background: transparent !important;
+  border-color: var(--neon-purple) !important;
+}
+
+.el-button--info.is-plain i,
+.el-button--info.is-plain .el-icon,
+.el-button--info.is-plain [class*="i-"] {
+  color: var(--neon-purple) !important;
+}
+
+.el-button--info.is-plain:hover {
+  color: #ffffff !important;
+  background: var(--neon-purple) !important;
+  border-color: var(--neon-purple) !important;
+}
+
+.el-button--info.is-plain:hover i,
+.el-button--info.is-plain:hover .el-icon,
+.el-button--info.is-plain:hover [class*="i-"] {
+  color: #ffffff !important;
+}
+
+/* Info Text 按钮 */
+.el-button--info.is-text {
+  color: var(--neon-purple) !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+.el-button--info.is-text i,
+.el-button--info.is-text .el-icon,
+.el-button--info.is-text [class*="i-"] {
+  color: var(--neon-purple) !important;
+}
+
+.el-button--info.is-text:hover {
+  color: #ad7dff !important;
+  background: rgba(155, 92, 255, 0.1) !important;
 }
 
 /* Default 按钮 - 半透明背景，白色文字 */

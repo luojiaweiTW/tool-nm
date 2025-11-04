@@ -56,6 +56,7 @@ withDefaults(defineProps<Props>(), {
 .neon-header__info {
   flex: 1;
   min-width: 0;
+  max-width: 50%;  /* 确保标题区域至少占50%宽度 */
 }
 
 .neon-header__title {
@@ -68,6 +69,9 @@ withDefaults(defineProps<Props>(), {
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-tight);
   color: var(--color-text);
+  white-space: nowrap;  /* 防止标题换行 */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .neon-header__icon {
@@ -95,7 +99,9 @@ withDefaults(defineProps<Props>(), {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  flex-shrink: 0;
+  flex-shrink: 1;  /* 允许操作区适当收缩，不要挤压标题 */
+  flex-wrap: wrap;  /* 允许按钮换行 */
+  max-width: 70%;  /* 最多占70%宽度 */
 }
 
 .neon-header__tabs {

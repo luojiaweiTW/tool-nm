@@ -12,9 +12,9 @@ let mainWindow: BrowserWindow | null = null
 const isDev = process.env.NODE_ENV === 'development'
 
 // 设置应用名称和进程标题（在任务管理器中显示）
-const APP_NAME = '牛马工具集'
+const APP_NAME = 'IWork'
 app.setName(APP_NAME)
-app.setAppUserModelId('com.nmtool.app')
+app.setAppUserModelId('com.iwork.app')
 
 // 强制设置进程标题（特别是在开发模式下）
 // 这会影响任务管理器中的进程名称显示
@@ -44,7 +44,7 @@ function createWindow() {
     height: 800,
     minWidth: 1024,
     minHeight: 600,
-    title: '牛马工具集',
+    title: 'IWork',
     icon: icon,  // 设置窗口图标
     backgroundColor: '#0a0e27',
     webPreferences: {
@@ -204,12 +204,12 @@ function createMenu() {
         },
         { type: 'separator' },
         {
-          label: '关于牛马工具集',
+          label: '关于 IWork',
           click: () => {
             dialog.showMessageBox(mainWindow!, {
               type: 'info',
-              title: '关于牛马工具集',
-              message: '牛马工具集 (NM Tool)',
+              title: '关于 IWork',
+              message: 'IWork - 爱工作',
               detail: `版本: ${app.getVersion()}\n\n实用开发工具合集\n\n数据位置:\n${app.getPath('userData')}`,
               buttons: ['确定'],
             })
@@ -219,7 +219,7 @@ function createMenu() {
         {
           label: '访问 GitHub',
           click: () => {
-            shell.openExternal('https://github.com/yourusername/nm-tool')
+            shell.openExternal('https://github.com/yourusername/iwork')
           },
         },
       ],
@@ -276,9 +276,9 @@ function setupIPC() {
   // 获取应用路径（用户数据目录，升级时不会丢失）
   ipcMain.handle('get-app-path', () => {
     // 始终返回用户数据目录，确保升级时数据不丢失
-    // Windows: %APPDATA%/牛马工具集
-    // macOS: ~/Library/Application Support/牛马工具集
-    // Linux: ~/.config/牛马工具集
+    // Windows: %APPDATA%/IWork
+    // macOS: ~/Library/Application Support/IWork
+    // Linux: ~/.config/IWork
     return app.getPath('userData')
   })
 

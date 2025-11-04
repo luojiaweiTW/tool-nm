@@ -106,11 +106,13 @@
             <template #extra>
               <span class="char-count">{{ jsonInput.length }} 字符</span>
             </template>
-            <NeonTextarea
-              v-model="jsonInput"
-              placeholder='请输入 JSON 数据，例如：&#10;{&#10;  "name": "张三",&#10;  "age": 25,&#10;  "email": "zhangsan@example.com"&#10;}'
-              :rows="15"
-            />
+            <div class="textarea-wrapper">
+              <NeonTextarea
+                v-model="jsonInput"
+                placeholder='请输入 JSON 数据，例如：&#10;{&#10;  "name": "张三",&#10;  "age": 25,&#10;  "email": "zhangsan@example.com"&#10;}'
+                :rows="15"
+              />
+            </div>
             <div v-if="error" class="error-message">
               <i class="i-mdi-alert-circle mr-2" />
               {{ error }}
@@ -543,6 +545,17 @@ function clearAll() {
 
 .mr-2 {
   margin-right: 8px;
+}
+
+/* 🔧 固定高度确保滚动 */
+.textarea-wrapper {
+  height: 450px;
+  overflow: hidden;
+}
+
+.textarea-wrapper :deep(textarea) {
+  height: 100% !important;
+  min-height: 450px !important;
 }
 </style>
 

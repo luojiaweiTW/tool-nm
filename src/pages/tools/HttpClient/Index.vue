@@ -53,7 +53,7 @@
         <el-tabs v-model="activeTab" class="request-tabs">
           <!-- Headers -->
           <el-tab-pane label="Headers" name="headers">
-            <div class="headers-section">
+            <div class="headers-section scrollbar">
               <div v-for="(header, index) in headers" :key="index" class="header-row">
                 <NeonInput
                   v-model="header.key"
@@ -69,9 +69,10 @@
                   type="danger"
                   size="small"
                   @click="removeHeader(index)"
-                  :icon="'i-mdi-delete'"
                   circle
-                />
+                >
+                  <i class="i-mdi-delete" />
+                </el-button>
               </div>
               <NeonButton size="small" @click="addHeader">
                 <i class="i-mdi-plus mr-1" />
@@ -89,14 +90,16 @@
                 <el-radio-button value="text" label="text">Raw Text</el-radio-button>
               </el-radio-group>
 
-              <NeonTextarea
-                v-if="bodyType === 'json' || bodyType === 'text'"
-                v-model="body"
-                :placeholder="bodyType === 'json' ? '{  &quot;key&quot;: &quot;value&quot;}' : '请输入文本...'"
-                :rows="12"
-              />
+              <div v-if="bodyType === 'json' || bodyType === 'text'" class="request-body-wrapper">
+                <NeonTextarea
+                  v-model="body"
+                  :placeholder="bodyType === 'json' ? '{  &quot;key&quot;: &quot;value&quot;}' : '请输入文本...'"
+                  :rows="12"
+                  class="request-body-textarea"
+                />
+              </div>
 
-              <div v-else class="form-data">
+              <div v-else class="form-data scrollbar">
                 <div v-for="(param, index) in formData" :key="index" class="form-row">
                   <NeonInput
                     v-model="param.key"
@@ -112,9 +115,10 @@
                     type="danger"
                     size="small"
                     @click="removeFormParam(index)"
-                    :icon="'i-mdi-delete'"
                     circle
-                  />
+                  >
+                    <i class="i-mdi-delete" />
+                  </el-button>
                 </div>
                 <NeonButton size="small" @click="addFormParam">
                   <i class="i-mdi-plus mr-1" />
@@ -153,14 +157,14 @@
         <!-- 响应 Tabs -->
         <el-tabs v-model="responseTab">
           <el-tab-pane label="Body" name="body">
-            <div class="response-body">
+            <div class="response-body scrollbar">
               <pre v-if="formattedResponse">{{ formattedResponse }}</pre>
               <div v-else class="empty-response">无响应内容</div>
             </div>
           </el-tab-pane>
 
           <el-tab-pane label="Headers" name="headers">
-            <div class="response-headers">
+            <div class="response-headers scrollbar">
               <div v-for="(value, key) in response.headers" :key="key" class="header-item">
                 <span class="header-key">{{ key }}:</span>
                 <span class="header-value">{{ value }}</span>
@@ -892,6 +896,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+  height: 200px; /* 🔧 固定小高度，确保容易出现滚动条 */
+  overflow-y: auto;
 }
 
 .header-row,
@@ -910,6 +916,17 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+}
+
+/* 🔧 请求体容器样式 */
+.request-body-wrapper {
+  height: 300px; /* 固定高度 */
+  overflow-y: auto;
+}
+
+.request-body-textarea :deep(textarea) {
+  height: 280px !important;
+  min-height: 280px !important;
 }
 
 .mb-3 {
@@ -932,9 +949,8 @@ onMounted(() => {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--spacing-md);
-  /* 移除固定高度限制，使用flex自适应 */
-  flex: 1;
-  min-height: 0;
+  /* 🔧 固定小高度，确保内容超出时滚动 */
+  height: 300px;
   overflow: auto;
 }
 
@@ -960,9 +976,8 @@ onMounted(() => {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--spacing-md);
-  /* 移除固定高度限制，使用flex自适应 */
-  flex: 1;
-  min-height: 0;
+  /* 🔧 固定小高度，确保内容超出时滚动 */
+  height: 250px;
   overflow: auto;
 }
 
@@ -996,13 +1011,17 @@ onMounted(() => {
 
 .error-message {
   padding: var(--spacing-md);
-  background: rgba(255, 42, 161, 0.1);
+  background: rgba(255, 42, 161, 0.15);
   border: 1px solid var(--neon-pink);
   border-radius: var(--radius-md);
-  color: var(--neon-pink);
+  color: #fff;
   display: flex;
   align-items: center;
   font-size: var(--font-size-base);
+}
+
+.error-message i {
+  color: var(--neon-pink);
 }
 
 .empty-state {
@@ -1084,7 +1103,7 @@ onMounted(() => {
 }
 
 .history-list {
-  max-height: 500px;
+  max-height: calc(70vh - 150px); /* 🔧 响应式高度 */
   overflow-y: auto;
 }
 

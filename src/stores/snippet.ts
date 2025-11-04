@@ -48,8 +48,31 @@ export const useSnippetStore = defineStore('snippet', () => {
   const filter = ref<SnippetFilter>({})
   const appPath = ref('')
 
+  // ⚡ 缓存上次的过滤结果和参数，避免不必要的重新计算
+  let cachedFilterKey = ''
+  let cachedFilterResult: Snippet[] = []
+
+  // ⚡ 生成过滤器缓存键
+  const getFilterKey = () => {
+    return JSON.stringify({
+      search: filter.value.searchText,
+      lang: filter.value.language,
+      cat: filter.value.categoryId,
+      tags: filter.value.tagIds?.sort(),
+      pin: filter.value.isPinned,
+      fav: filter.value.isFavorite,
+      count: snippets.value.length,
+    })
+  }
+
   // Computed
   const filteredSnippets = computed(() => {
+    // ⚡ 检查缓存
+    const filterKey = getFilterKey()
+    if (filterKey === cachedFilterKey) {
+      return cachedFilterResult
+    }
+
     let result = [...snippets.value]
 
     // 搜索文本
@@ -97,6 +120,10 @@ export const useSnippetStore = defineStore('snippet', () => {
       if (a.usageCount !== b.usageCount) return b.usageCount - a.usageCount
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     })
+
+    // ⚡ 更新缓存
+    cachedFilterKey = filterKey
+    cachedFilterResult = result
 
     return result
   })

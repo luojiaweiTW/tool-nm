@@ -14,6 +14,14 @@ export default defineConfig({
     presetIcons({
       scale: 1.2,
       warn: true,
+      // ⚡ 修复打包后图标不显示的问题
+      collections: {
+        mdi: () => import('@iconify-json/mdi/icons.json').then(i => i.default),
+      },
+      // 开发环境和生产环境都使用本地图标
+      cdn: undefined,
+      // 使用 auto 模式自动选择最佳渲染方式
+      mode: 'auto',
       extraProperties: {
         'display': 'inline-block',
         'vertical-align': 'middle',

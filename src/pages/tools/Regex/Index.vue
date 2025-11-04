@@ -52,14 +52,16 @@
 
         <!-- 测试文本 -->
         <NeonCard title="测试文本" icon="i-mdi-text-box" compact>
-          <NeonTextarea
-            v-model="testText"
-            placeholder="输入要测试的文本..."
-            :rows="12"
-            show-count
-            :maxlength="50000"
-            @input="handleTest"
-          />
+          <div class="textarea-wrapper">
+            <NeonTextarea
+              v-model="testText"
+              placeholder="输入要测试的文本..."
+              :rows="12"
+              show-count
+              :maxlength="50000"
+              @input="handleTest"
+            />
+          </div>
         </NeonCard>
 
         <!-- 匹配结果 -->
@@ -320,6 +322,27 @@ const applyExample = (example: typeof regexExamples[0]) => {
   flex: 1;
   overflow: auto;
   padding: var(--spacing-xl);
+}
+
+/* 🎨 霓虹风格滚动条 */
+.tool-page__content::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.tool-page__content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.tool-page__content::-webkit-scrollbar-thumb {
+  background: rgba(33, 230, 255, 0.5);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.tool-page__content::-webkit-scrollbar-thumb:hover {
+  background: rgba(33, 230, 255, 0.8);
 }
 
 .regex-tester {
@@ -610,6 +633,17 @@ const applyExample = (example: typeof regexExamples[0]) => {
   .regex-tester {
     grid-template-columns: 1fr;
   }
+}
+
+/* 🔧 固定高度确保滚动 */
+.textarea-wrapper {
+  height: 350px;
+  overflow: hidden;
+}
+
+.textarea-wrapper :deep(textarea) {
+  height: 100% !important;
+  min-height: 350px !important;
 }
 </style>
 

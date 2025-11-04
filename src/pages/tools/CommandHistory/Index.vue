@@ -135,9 +135,9 @@
           </div>
 
           <!-- 命令列表 -->
-          <div v-else class="command-list">
+          <div v-else class="command-list scrollbar">
             <CommandHistoryCard
-              v-for="cmd in commandStore.filteredHistory"
+              v-for="cmd in paginatedHistory"
               :key="cmd.id"
               :command="cmd"
               @copy="handleCopy"
@@ -145,6 +145,12 @@
               @toggle-favorite="handleToggleFavorite"
               @add-to-favorites="handleAddToFavorites"
             />
+            <!-- ⚡ 加载更多按钮 -->
+            <div v-if="hasMoreHistory" style="margin-top: 16px;">
+              <NeonButton @click="loadMore" style="width: 100%;">
+                加载更多 (剩余 {{ commandStore.filteredHistory.length - paginatedHistory.length }} 条)
+              </NeonButton>
+            </div>
           </div>
         </div>
 
@@ -184,6 +190,7 @@ import NeonInput from '@/components/NeonInput.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import CommandHistoryCard from './components/CommandHistoryCard.vue'
 import FavoriteCommandCard from './components/FavoriteCommandCard.vue'
+import { watchDebounced } from '@/composables/useDebounce'
 
 const commandStore = useCommandHistoryStore()
 
@@ -197,9 +204,40 @@ const selectedCategory = ref('')
 const selectedTags = ref<string[]>([])
 const showFavoriteOnly = ref(false)
 
-// 监听筛选条件变化
+// ⚡ 分页状态
+const pageSize = ref(20)
+const currentPage = ref(1)
+
+// ⚡ 分页显示的列表
+const paginatedHistory = computed(() => {
+  return commandStore.filteredHistory.slice(0, currentPage.value * pageSize.value)
+})
+
+// ⚡ 是否还有更多
+const hasMoreHistory = computed(() => {
+  return paginatedHistory.value.length < commandStore.filteredHistory.length
+})
+
+// ⚡ 加载更多
+const loadMore = () => {
+  currentPage.value++
+}
+
+// ⚡ 监听搜索文本变化（带防抖）
+watchDebounced(searchText, () => {
+  commandStore.setFilter({
+    searchText: searchText.value || undefined,
+    serverHost: selectedServer.value || undefined,
+    category: selectedCategory.value || undefined,
+    tagIds: selectedTags.value.length > 0 ? selectedTags.value : undefined,
+    isFavorite: showFavoriteOnly.value || undefined,
+  })
+  currentPage.value = 1
+}, 300)
+
+// 监听其他筛选条件变化（立即生效）
 watch(
-  [searchText, selectedServer, selectedCategory, selectedTags, showFavoriteOnly],
+  [selectedServer, selectedCategory, selectedTags, showFavoriteOnly],
   () => {
     commandStore.setFilter({
       searchText: searchText.value || undefined,
@@ -208,6 +246,8 @@ watch(
       tagIds: selectedTags.value.length > 0 ? selectedTags.value : undefined,
       isFavorite: showFavoriteOnly.value || undefined,
     })
+    // ⚡ 重置分页
+    currentPage.value = 1
   }
 )
 
@@ -378,6 +418,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+  max-height: 700px; /* 🔧 固定最大高度确保滚动 */
+  overflow-y: auto;
 }
 
 .favorites-grid {

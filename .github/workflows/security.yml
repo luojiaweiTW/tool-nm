@@ -1,0 +1,112 @@
+name: 安全扫描
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # 每周一凌晨 2 点运行
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+jobs:
+  # 依赖漏洞扫描
+  dependency-check:
+    name: 依赖漏洞扫描
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: 安装依赖
+        run: npm ci
+      
+      - name: 运行 npm audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+      
+      - name: 生成审计报告
+        run: npm audit --json > audit-report.json
+        continue-on-error: true
+      
+      - name: 上传审计报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-report
+          path: audit-report.json
+          retention-days: 30
+
+  # CodeQL 代码安全分析
+  codeql:
+    name: CodeQL 安全分析
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript', 'typescript' ]
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: 初始化 CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+      
+      - name: 自动构建
+        uses: github/codeql-action/autobuild@v3
+      
+      - name: 执行 CodeQL 分析
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{matrix.language}}"
+
+  # 供应链安全分析（可选，需要集成 Socket 或 Snyk）
+  supply-chain:
+    name: 供应链安全分析
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: 检查 package-lock.json
+        run: |
+          if [ -f package-lock.json ]; then
+            echo "✅ package-lock.json 存在"
+          else
+            echo "❌ package-lock.json 不存在，建议运行 npm install"
+            exit 1
+          fi
+      
+      - name: 检查可疑依赖
+        run: |
+          echo "📦 检查已安装的依赖包..."
+          npm list --depth=0 || true
+          
+          echo ""
+          echo "⚠️ 检查过时的依赖..."
+          npm outdated || true
+      
+      # 如果启用了 Snyk，取消注释以下步骤
+      # - name: Run Snyk 安全扫描
+      #   uses: snyk/actions/node@master
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #   with:
+      #     args: --severity-threshold=high
+

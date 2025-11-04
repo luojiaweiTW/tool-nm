@@ -1,12 +1,12 @@
 {
-  "name": "nm-tool",
+  "name": "iwork",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "productName": "牛马工具集",
-  "description": "牛马工具集 - 实用开发工具合集",
+  "productName": "IWork",
+  "description": "爱工作 - 实用开发工具合集",
   "author": {
-    "name": "牛马工具集",
+    "name": "IWork",
     "email": "luojiawei24@163.com"
   },
   "scripts": {
@@ -17,7 +17,11 @@
     "build:check": "vue-tsc -b && node --max-old-space-size=4096 ./node_modules/vite/bin/vite.js build",
     "build:electron": "node --max-old-space-size=4096 ./node_modules/vite/bin/vite.js build && electron-builder",
     "build:dir": "node --max-old-space-size=4096 ./node_modules/vite/bin/vite.js build && electron-builder --dir",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report"
   },
   "main": "electron-main.cjs",
   "dependencies": {
@@ -47,6 +51,7 @@
   "devDependencies": {
     "@iconify-json/mdi": "^1.2.3",
     "@iconify/json": "^2.2.398",
+    "@playwright/test": "^1.56.1",
     "@types/node": "^24.6.0",
     "@unocss/reset": "^66.5.2",
     "@vitejs/plugin-vue": "^6.0.1",
@@ -55,6 +60,7 @@
     "electron": "^38.2.2",
     "electron-builder": "^26.0.12",
     "electron-vite": "^4.0.1",
+    "playwright": "^1.56.1",
     "typescript": "~5.9.3",
     "unocss": "^66.5.2",
     "unplugin-auto-import": "^20.2.0",

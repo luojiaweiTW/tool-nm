@@ -55,6 +55,10 @@ export default defineConfig({
             if (id.includes('axios') || id.includes('crypto-js') || id.includes('js-yaml') || id.includes('marked')) {
               return 'utils'
             }
+            // ⚡ 图标集单独打包
+            if (id.includes('@iconify')) {
+              return 'icons'
+            }
             return 'vendor' // 其他第三方库
           }
         },
@@ -64,5 +68,7 @@ export default defineConfig({
     minify: 'esbuild', // 使用 esbuild 代替 terser，更快且内存占用更少
     target: 'esnext',
     sourcemap: false, // 生产环境不生成 sourcemap，节省时间和空间
+    // ⚡ 确保图标资源被正确打包
+    assetsInlineLimit: 0, // 禁用内联，确保所有资源都被正确复制
   },
 })
