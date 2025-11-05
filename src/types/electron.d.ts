@@ -42,6 +42,8 @@ export interface ElectronAPI {
   send: (channel: string, ...args: any[]) => void
   on: (channel: string, callback: (...args: any[]) => void) => void
   removeListener: (channel: string, callback: (...args: any[]) => void) => void
+  // 通用 IPC 调用（用于MySQL等功能）
+  invoke: (channel: string, ...args: any[]) => Promise<any>
 }
 
 export interface PortScanResult {

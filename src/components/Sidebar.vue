@@ -183,6 +183,18 @@ const menuCategories: MenuCategory[] = [
         icon: 'i-mdi-file-document-arrow-right',
         description: 'Word 文档转 Markdown，提取图片并打包',
       },
+      {
+        path: '/tools/profile-merger',
+        title: 'Profile 配置合成',
+        icon: 'i-mdi-file-settings',
+        description: '合并 Spring Boot 多环境配置文件',
+      },
+      {
+        path: '/tools/log-analyzer',
+        title: '日志片段分析',
+        icon: 'i-mdi-text-search',
+        description: '日志分级高亮、异常定位、堆栈折叠',
+      },
     ]
   },
   {
@@ -263,6 +275,12 @@ const menuCategories: MenuCategory[] = [
         title: 'Cron 表达式',
         icon: 'i-mdi-calendar-clock',
         description: 'Cron 表达式生成与解析',
+      },
+      {
+        path: '/tools/time-calculator',
+        title: '时间计算器',
+        icon: 'i-mdi-calculator-variant',
+        description: '日期时间加减运算，计算时间差值',
       },
     ]
   },
@@ -383,6 +401,18 @@ const menuCategories: MenuCategory[] = [
         description: '连接远程服务器',
       },
       {
+        path: '/tools/mysql',
+        title: 'MySQL 查询',
+        icon: 'i-mdi-database',
+        description: '通过SSH连接MySQL数据库，执行SQL查询',
+      },
+      {
+        path: '/tools/redis',
+        title: 'Redis 管理',
+        icon: 'i-mdi-database-clock',
+        description: '连接Redis数据库，执行命令和管理键值',
+      },
+      {
         path: '/tools/command-history',
         title: '命令历史',
         icon: 'i-mdi-history',
@@ -461,6 +491,12 @@ const menuCategories: MenuCategory[] = [
         title: '天气查询',
         icon: 'i-mdi-weather-partly-cloudy',
         description: '查看多个城市的实时天气和天气预报',
+      },
+      {
+        path: '/tools/calculator',
+        title: '计算器',
+        icon: 'i-carbon-calculator',
+        description: '支持历史记录和时间旅行的计算器',
       },
     ]
   },

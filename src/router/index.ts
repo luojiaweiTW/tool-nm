@@ -25,8 +25,12 @@ import JsonToJava from '@/pages/tools/JsonToJava/Index.vue'
 import ExceptionParser from '@/pages/tools/ExceptionParser/Index.vue'
 import MavenSearch from '@/pages/tools/MavenSearch/Index.vue'
 import HttpClient from '@/pages/tools/HttpClient/Index.vue'
+import ProfileMerger from '@/pages/tools/ProfileMerger/Index.vue'
+import LogAnalyzer from '@/pages/tools/LogAnalyzer/Index.vue'
 import IPQuery from '@/pages/tools/IPQuery/Index.vue'
 import SSH from '@/pages/tools/SSH/Index.vue'
+import MySQL from '@/pages/tools/mysql/Index.vue'
+import Redis from '@/pages/tools/redis/Index.vue'
 import CommandHistory from '@/pages/tools/CommandHistory/Index.vue'
 import Knowledge from '@/pages/tools/Knowledge/Index.vue'
 import Snippets from '@/pages/tools/Snippets/Index.vue'
@@ -47,6 +51,7 @@ import ImageConverter from '@/pages/tools/ImageConverter/Index.vue'
 import ImageCropper from '@/pages/tools/ImageCropper/Index.vue'
 import FileHash from '@/pages/tools/FileHash/Index.vue'
 import Calculator from '@/pages/tools/Calculator/Index.vue'
+import TimeCalculator from '@/pages/tools/TimeCalculator/Index.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -128,6 +133,28 @@ const routes: RouteRecordRaw[] = [
           title: '文档转 Markdown',
           description: 'Word 文档转 Markdown，提取图片并打包',
           icon: 'i-mdi-file-document-arrow-right',
+          category: '文本处理',
+        }
+      },
+      {
+        path: 'tools/profile-merger',
+        name: 'ProfileMerger',
+        component: ProfileMerger,
+        meta: {
+          title: 'Profile 配置合成',
+          description: '合并 Spring Boot 多环境配置文件',
+          icon: 'i-mdi-file-settings',
+          category: '文本处理',
+        }
+      },
+      {
+        path: 'tools/log-analyzer',
+        name: 'LogAnalyzer',
+        component: LogAnalyzer,
+        meta: {
+          title: '日志片段分析',
+          description: '日志分级高亮、异常定位、堆栈折叠',
+          icon: 'i-mdi-text-search',
           category: '文本处理',
         }
       },
@@ -243,6 +270,17 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: 'Cron 表达式',
           description: 'Cron 表达式生成器与解析',
+          icon: 'i-mdi-calendar-clock',
+          category: '时间调度',
+        }
+      },
+      {
+        path: 'tools/time-calculator',
+        name: 'TimeCalculator',
+        component: TimeCalculator,
+        meta: {
+          title: '时间计算器',
+          description: '日期时间加减运算，计算时间差值，支持多种时间单位',
           icon: 'i-mdi-calendar-clock',
           category: '时间调度',
         }
@@ -415,6 +453,28 @@ const routes: RouteRecordRaw[] = [
           title: 'SSH 连接',
           description: '连接远程服务器，支持保存连接历史',
           icon: 'i-mdi-console',
+          category: '网络工具',
+        }
+      },
+      {
+        path: 'tools/mysql',
+        name: 'MySQL',
+        component: MySQL,
+        meta: {
+          title: 'MySQL 查询',
+          description: '通过SSH连接MySQL数据库，执行SQL查询',
+          icon: 'i-mdi-database',
+          category: '网络工具',
+        }
+      },
+      {
+        path: 'tools/redis',
+        name: 'Redis',
+        component: Redis,
+        meta: {
+          title: 'Redis 管理',
+          description: '连接Redis数据库，执行命令和管理键值',
+          icon: 'i-mdi-database-clock',
           category: '网络工具',
         }
       },

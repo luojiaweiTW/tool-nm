@@ -159,12 +159,12 @@ const currentSlogan = computed(() => slogans[currentSloganIndex.value])
 // Slogan 定时器
 let sloganTimer: ReturnType<typeof setInterval> | null = null
 
-// 工具分类数据
+// 工具分类数据（与 Sidebar.vue 保持一致）
 const categories = [
   {
-    id: 'text-tools',
+    id: 'text-processing',
     title: '📝 文本处理',
-    icon: 'i-mdi-file-document-edit',
+    icon: 'i-mdi-text-box-multiple',
     children: [
       { path: '/tools/json-formatter', title: 'JSON 格式化', icon: 'i-mdi-code-json', description: '格式化、压缩、校验 JSON 数据' },
       { path: '/tools/xml-yaml', title: 'XML/YAML 转换', icon: 'i-mdi-file-xml-box', description: 'XML、YAML、JSON 格式互转' },
@@ -172,19 +172,50 @@ const categories = [
       { path: '/tools/text-diff', title: '文本对比', icon: 'i-mdi-file-compare', description: '文本差异对比工具' },
       { path: '/tools/regex', title: '正则表达式', icon: 'i-mdi-regex', description: '正则表达式测试与匹配' },
       { path: '/tools/doc-to-markdown', title: '文档转 Markdown', icon: 'i-mdi-file-document-arrow-right', description: 'Word 文档转 Markdown' },
+      { path: '/tools/profile-merger', title: 'Profile 配置合成', icon: 'i-mdi-file-settings', description: '合并 Spring Boot 多环境配置' },
+      { path: '/tools/log-analyzer', title: '日志片段分析', icon: 'i-mdi-text-search', description: '日志分级高亮、异常定位' },
     ]
   },
   {
-    id: 'encode-tools',
+    id: 'encoding-crypto',
     title: '🔐 编码加密',
-    icon: 'i-mdi-lock',
+    icon: 'i-mdi-shield-lock',
     children: [
       { path: '/tools/base64', title: 'Base64 编解码', icon: 'i-mdi-file-code-outline', description: 'Base64 编码解码工具' },
-      { path: '/tools/url-encoder', title: 'URL 编码', icon: 'i-mdi-link-variant', description: 'URL 编码与解码工具' },
+      { path: '/tools/url-encoder', title: 'URL 编码', icon: 'i-mdi-link-variant', description: 'URL 编码与解码' },
       { path: '/tools/hash', title: '哈希计算', icon: 'i-mdi-fingerprint', description: 'MD5、SHA 等哈希计算' },
       { path: '/tools/encrypt', title: '加密解密', icon: 'i-mdi-lock-outline', description: 'AES、DES、RSA 加密解密' },
-      { path: '/tools/unicode', title: 'Unicode 转换', icon: 'i-mdi-format-letter-case', description: 'Unicode 编码转换' },
-      { path: '/tools/encoding', title: '编码格式转换', icon: 'i-mdi-file-swap', description: 'UTF-8、GBK 等编码互转' },
+      { path: '/tools/unicode', title: 'Unicode 转换', icon: 'i-mdi-format-letter-case', description: 'Unicode、HTML 实体编码转换' },
+      { path: '/tools/encoding', title: '编码格式转换', icon: 'i-mdi-file-swap', description: 'UTF-8、GBK、GB2312 互转' },
+      { path: '/tools/file-hash', title: '文件哈希校验', icon: 'i-mdi-shield-check', description: 'MD5/SHA1/SHA256/SHA512 哈希' },
+    ]
+  },
+  {
+    id: 'auth-security',
+    title: '🔑 认证安全',
+    icon: 'i-mdi-key-variant',
+    children: [
+      { path: '/tools/jwt', title: 'JWT 解析', icon: 'i-mdi-key-chain', description: 'JWT Token 解析与验证' },
+    ]
+  },
+  {
+    id: 'time-schedule',
+    title: '⏰ 时间调度',
+    icon: 'i-mdi-clock-outline',
+    children: [
+      { path: '/tools/timestamp', title: '时间戳转换', icon: 'i-mdi-clock-digital', description: 'Unix 时间戳与日期转换' },
+      { path: '/tools/cron', title: 'Cron 表达式', icon: 'i-mdi-calendar-clock', description: 'Cron 表达式生成与解析' },
+      { path: '/tools/time-calculator', title: '时间计算器', icon: 'i-mdi-calculator-variant', description: '日期时间加减运算' },
+    ]
+  },
+  {
+    id: 'image-tools',
+    title: '🖼️ 图片工具',
+    icon: 'i-mdi-image-multiple',
+    children: [
+      { path: '/tools/image-compressor', title: '图片压缩', icon: 'i-mdi-image-size-select-actual', description: '在线压缩 JPG/PNG/WebP' },
+      { path: '/tools/image-converter', title: '图片格式转换', icon: 'i-mdi-image-sync', description: 'JPG/PNG/WebP/GIF 互转' },
+      { path: '/tools/image-cropper', title: '图片裁剪缩放', icon: 'i-mdi-crop', description: '裁剪图片、调整尺寸' },
     ]
   },
   {
@@ -193,18 +224,11 @@ const categories = [
     icon: 'i-mdi-tools',
     children: [
       { path: '/tools/uuid', title: 'UUID 生成', icon: 'i-mdi-identifier', description: '生成 UUID/GUID' },
-      { path: '/tools/random-generator', title: '随机数据生成', icon: 'i-mdi-dice-multiple', description: '生成随机字符串、数据' },
-      { path: '/tools/number-base', title: '进制转换', icon: 'i-mdi-numeric', description: '十进制、十六进制转换' },
-      { path: '/tools/qrcode', title: '二维码生成', icon: 'i-mdi-qrcode', description: '生成多种类型二维码' },
-    ]
-  },
-  {
-    id: 'time-tools',
-    title: '⏰ 时间调度',
-    icon: 'i-mdi-clock',
-    children: [
-      { path: '/tools/timestamp', title: '时间戳转换', icon: 'i-mdi-clock-digital', description: '时间戳与日期转换' },
-      { path: '/tools/cron', title: 'Cron 表达式', icon: 'i-mdi-calendar-clock', description: 'Cron 表达式生成器' },
+      { path: '/tools/random-generator', title: '随机数据生成', icon: 'i-mdi-dice-multiple', description: '生成随机字符串、模拟数据' },
+      { path: '/tools/number-base', title: '进制转换', icon: 'i-mdi-numeric', description: '十进制、十六进制、二进制转换' },
+      { path: '/tools/qrcode', title: '二维码生成', icon: 'i-mdi-qrcode', description: '支持文本、网址、名片、WiFi、Logo等' },
+      { path: '/tools/unit-converter', title: '单位换算器', icon: 'i-mdi-swap-horizontal', description: '长度、重量、温度等单位互转' },
+      { path: '/tools/color-converter', title: '颜色转换器', icon: 'i-mdi-palette', description: 'HEX、RGB、HSL 颜色格式互转' },
     ]
   },
   {
@@ -213,7 +237,7 @@ const categories = [
     icon: 'i-mdi-language-java',
     children: [
       { path: '/tools/json-to-java', title: 'JSON 转 Java', icon: 'i-mdi-code-braces', description: 'JSON 转 Java 实体类' },
-      { path: '/tools/exception-parser', title: '异常堆栈分析', icon: 'i-mdi-bug', description: 'Java 异常堆栈美化' },
+      { path: '/tools/exception-parser', title: '异常堆栈分析', icon: 'i-mdi-bug', description: 'Java 异常堆栈美化与分析' },
       { path: '/tools/maven-search', title: 'Maven 依赖', icon: 'i-mdi-package-variant', description: 'Maven 依赖坐标查询' },
     ]
   },
@@ -223,10 +247,24 @@ const categories = [
     icon: 'i-mdi-web',
     children: [
       { path: '/tools/http-client', title: 'HTTP 测试', icon: 'i-mdi-api', description: 'HTTP 请求测试工具' },
-      { path: '/tools/ip-query', title: 'IP 查询', icon: 'i-mdi-ip-network', description: 'IP 地址查询' },
+      { path: '/tools/ip-query', title: 'IP 查询', icon: 'i-mdi-ip-network', description: '查询 IP 地址详细信息' },
       { path: '/tools/ssh', title: 'SSH 连接', icon: 'i-mdi-console', description: '连接远程服务器' },
+      { path: '/tools/mysql', title: 'MySQL 查询', icon: 'i-mdi-database', description: '通过SSH连接MySQL数据库' },
+      { path: '/tools/redis', title: 'Redis 管理', icon: 'i-mdi-database-clock', description: '连接Redis数据库，管理键值' },
+      { path: '/tools/command-history', title: '命令历史', icon: 'i-mdi-history', description: '终端命令历史管理' },
       { path: '/tools/port-scanner', title: '端口扫描', icon: 'i-mdi-lan-connect', description: '扫描服务器开放端口' },
-      { path: '/tools/command-history', title: '命令历史', icon: 'i-mdi-history', description: '终端命令管理' },
+      { path: '/tools/ip-scanner', title: 'IP 扫描器', icon: 'i-mdi-ip-network-outline', description: '扫描局域网 IP 地址' },
+      { path: '/tools/websocket', title: 'WebSocket 测试', icon: 'i-mdi-connection', description: '连接 WebSocket 服务器' },
+    ]
+  },
+  {
+    id: 'knowledge-management',
+    title: '📚 知识管理',
+    icon: 'i-mdi-book-open-variant',
+    children: [
+      { path: '/tools/knowledge', title: '知识库', icon: 'i-mdi-book-open-page-variant', description: '个人知识管理，支持文本和图片' },
+      { path: '/tools/snippets', title: '代码片段', icon: 'i-mdi-code-braces-box', description: '管理和使用代码片段' },
+      { path: '/tools/bookmarks', title: '网页收藏夹', icon: 'i-mdi-bookmark-multiple', description: '管理常用网站和资源链接' },
     ]
   },
   {
@@ -234,13 +272,19 @@ const categories = [
     title: '🎯 实用工具',
     icon: 'i-mdi-apps',
     children: [
-      { path: '/tools/clipboard-history', title: '剪贴板历史', icon: 'i-mdi-clipboard-text-clock', description: '自动记录复制的文本' },
+      { path: '/tools/clipboard-history', title: '剪贴板历史', icon: 'i-mdi-clipboard-text-clock', description: '自动记录复制的文本内容' },
       { path: '/tools/screenshot', title: '截图工具', icon: 'i-mdi-camera-outline', description: '快速截取屏幕或窗口' },
-      { path: '/tools/system-monitor', title: '系统监控', icon: 'i-mdi-monitor-dashboard', description: '实时监控系统资源' },
-      { path: '/tools/jwt', title: 'JWT 解析', icon: 'i-mdi-key-chain', description: 'JWT Token 解析' },
-      { path: '/tools/knowledge', title: '知识库', icon: 'i-mdi-book-open-page-variant', description: '个人知识管理' },
-      { path: '/tools/snippets', title: '代码片段', icon: 'i-mdi-code-braces-box', description: '管理代码片段' },
-      { path: '/tools/entertainment', title: '热榜聚合', icon: 'i-mdi-trending-up', description: '实时热门话题' },
+      { path: '/tools/system-monitor', title: '系统监控', icon: 'i-mdi-monitor-dashboard', description: '实时监控 CPU、内存、磁盘' },
+      { path: '/tools/weather', title: '天气查询', icon: 'i-mdi-weather-partly-cloudy', description: '查看多个城市的天气预报' },
+      { path: '/tools/calculator', title: '计算器', icon: 'i-carbon-calculator', description: '支持历史记录和时间旅行' },
+    ]
+  },
+  {
+    id: 'entertainment',
+    title: '🔥 热榜聚合',
+    icon: 'i-mdi-fire',
+    children: [
+      { path: '/tools/entertainment', title: '热榜聚合', icon: 'i-mdi-trending-up', description: '实时聚合各大平台热门话题' },
     ]
   },
 ]

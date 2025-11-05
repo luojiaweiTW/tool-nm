@@ -5,6 +5,7 @@ const fs = require('fs')
 const { Client } = require('ssh2')
 const https = require('https')
 const http = require('http')
+const mysql = require('mysql2/promise')
 // electron-screenshots 导入
 const Screenshots = require('electron-screenshots')
 console.log('📸 [Init] Screenshots module loaded:', typeof Screenshots)
@@ -39,6 +40,10 @@ let sshClient = null
 let sshStream = null
 let sftpClient = null
 let isInterrupting = false  // 标志：是否正在发送中断信号（此时丢弃所有输出）
+
+// MySQL 连接管理
+let mysqlConnection = null  // MySQL 连接对象
+let mysqlConfig = null      // MySQL 配置
 
 // 剪贴板监听相关变量
 let clipboardMonitorInterval = null
@@ -1739,6 +1744,331 @@ ipcMain.handle('ssh:loadCommands', async () => {
     return { success: false, error: error.message }
   }
 })
+
+// ========================================
+// MySQL 连接与查询功能（基于SSH连接）
+// ========================================
+
+/**
+ * 通过SSH连接MySQL数据库
+ */
+ipcMain.handle('mysql:connect', async (_event, config) => {
+  try {
+    console.log('Connecting to MySQL directly...')
+    console.log('MySQL Config:', { ...config, password: '***' })
+    
+    // 关闭之前的连接
+    if (mysqlConnection) {
+      try {
+        await mysqlConnection.end()
+        console.log('Previous connection closed')
+      } catch (err) {
+        console.error('Error closing previous MySQL connection:', err)
+      }
+      mysqlConnection = null
+    }
+    
+    // 保存配置
+    mysqlConfig = config
+    
+    // 使用 mysql2/promise 直接连接
+    const connectionConfig = {
+      host: config.host || 'localhost',
+      port: config.port || 3306,
+      user: config.username,
+      password: config.password || '',
+      connectTimeout: 10000, // 10秒超时
+    }
+    
+    // 如果指定了数据库，添加到配置
+    if (config.database) {
+      connectionConfig.database = config.database
+    }
+    
+    console.log('Creating MySQL connection...')
+    mysqlConnection = await mysql.createConnection(connectionConfig)
+    
+    // 测试连接
+    console.log('Testing connection with SELECT 1...')
+    await mysqlConnection.query('SELECT 1')
+    
+    console.log('✓ MySQL connection successful!')
+    return { success: true }
+    
+  } catch (error) {
+    console.error('MySQL connect error:', error)
+    
+    // 清理连接
+    if (mysqlConnection) {
+      try {
+        await mysqlConnection.end()
+      } catch (e) {}
+      mysqlConnection = null
+    }
+    
+    // 返回友好的错误信息
+    let errorMessage = error.message
+    if (error.code === 'ECONNREFUSED') {
+      errorMessage = `连接被拒绝：无法连接到 ${config.host}:${config.port}`
+    } else if (error.code === 'ER_ACCESS_DENIED_ERROR') {
+      errorMessage = '访问被拒绝：用户名或密码错误'
+    } else if (error.code === 'ETIMEDOUT') {
+      errorMessage = '连接超时：请检查主机地址和网络连接'
+    } else if (error.code === 'ENOTFOUND') {
+      errorMessage = `主机不存在：无法解析主机 ${config.host}`
+    }
+    
+    return { success: false, error: errorMessage }
+  }
+})
+
+/**
+ * 断开MySQL连接
+ */
+ipcMain.handle('mysql:disconnect', async () => {
+  try {
+    if (mysqlConnection) {
+      await mysqlConnection.end()
+      mysqlConnection = null
+    }
+    mysqlConfig = null
+    return { success: true }
+  } catch (error) {
+    console.error('MySQL disconnect error:', error)
+    return { success: false, error: error.message }
+  }
+})
+
+/**
+ * 获取所有数据库
+ */
+ipcMain.handle('mysql:getDatabases', async () => {
+  try {
+    if (!mysqlConnection) {
+      return { success: false, error: '请先连接MySQL' }
+    }
+    
+    console.log('Querying databases...')
+    const [rows] = await mysqlConnection.query('SHOW DATABASES')
+    
+    // 过滤掉系统数据库
+    const filtered = rows.filter(row => 
+      row.Database && 
+      !['information_schema', 'mysql', 'performance_schema', 'sys'].includes(row.Database)
+    )
+    
+    console.log('✓ Found', filtered.length, 'databases')
+    return { success: true, data: filtered }
+    
+  } catch (error) {
+    console.error('MySQL getDatabases error:', error)
+    return { success: false, error: error.message }
+  }
+})
+
+/**
+ * 获取指定数据库的所有表
+ */
+ipcMain.handle('mysql:getTables', async (_event, database) => {
+  try {
+    if (!mysqlConnection) {
+      return { success: false, error: '请先连接MySQL' }
+    }
+    
+    if (!database) {
+      return { success: false, error: '请指定数据库' }
+    }
+    
+    console.log('Querying tables for database:', database)
+    const [rows] = await mysqlConnection.query(`SHOW TABLES FROM \`${database}\``)
+    
+    console.log('✓ Found', rows.length, 'tables')
+    return { success: true, data: rows }
+    
+  } catch (error) {
+    console.error('MySQL getTables error:', error)
+    return { success: false, error: error.message }
+  }
+})
+
+/**
+ * 执行SQL查询
+ */
+ipcMain.handle('mysql:query', async (_event, sql, maxRows = 200, database = null) => {
+  try {
+    if (!mysqlConnection) {
+      return { success: false, error: '请先连接MySQL' }
+    }
+    
+    console.log('Executing SQL:', sql)
+    console.log('Max rows:', maxRows)
+    console.log('Database:', database || mysqlConfig?.database || 'none')
+    
+    // 自动添加LIMIT限制
+    let finalSql = sql.trim()
+    
+    // 检查是否为SELECT语句且没有LIMIT
+    if (/^SELECT/i.test(finalSql) && !/LIMIT\s+\d+/i.test(finalSql)) {
+      // 移除末尾的分号
+      finalSql = finalSql.replace(/;$/, '')
+      finalSql += ` LIMIT ${maxRows}`
+      console.log('Added LIMIT:', finalSql)
+    }
+    
+    // 如果指定了数据库，先切换
+    if (database) {
+      await mysqlConnection.query(`USE \`${database}\``)
+    }
+    
+    // 执行查询
+    const [rows, fields] = await mysqlConnection.query(finalSql)
+    
+    console.log('✓ Query executed, returned', rows.length, 'rows')
+    
+    // 解析结果
+    let result = {
+      rows: [],
+      columns: [],
+      affectedRows: undefined
+    }
+    
+    // 判断是SELECT还是其他语句
+    if (fields && Array.isArray(rows)) {
+      // SELECT 查询
+      if (rows.length > 0) {
+        result.columns = Object.keys(rows[0])
+        result.rows = rows
+      }
+    } else if (typeof rows === 'object' && 'affectedRows' in rows) {
+      // INSERT/UPDATE/DELETE 等语句
+      result.affectedRows = rows.affectedRows
+      result.insertId = rows.insertId
+      result.rows = []
+      result.columns = []
+    }
+    
+    return { 
+      success: true, 
+      data: result
+    }
+    
+  } catch (error) {
+    console.error('MySQL query error:', error)
+    
+    // 返回友好的错误信息
+    let errorMessage = error.message
+    if (error.code === 'ER_NO_SUCH_TABLE') {
+      errorMessage = '表不存在'
+    } else if (error.code === 'ER_BAD_DB_ERROR') {
+      errorMessage = '数据库不存在'
+    } else if (error.code === 'ER_PARSE_ERROR') {
+      errorMessage = 'SQL语法错误'
+    }
+    
+    return { success: false, error: errorMessage }
+  }
+})
+
+/**
+ * 保存MySQL配置
+ */
+ipcMain.handle('mysql:saveConfig', async (_event, config) => {
+  try {
+    const configPath = path.join(getDataPath(), 'mysql-config.json')
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
+    console.log('MySQL config saved to:', configPath)
+    return { success: true }
+  } catch (error) {
+    console.error('Failed to save MySQL config:', error)
+    return { success: false, error: error.message }
+  }
+})
+
+/**
+ * 加载MySQL配置
+ */
+ipcMain.handle('mysql:loadConfig', async () => {
+  try {
+    const configPath = path.join(getDataPath(), 'mysql-config.json')
+    
+    if (fs.existsSync(configPath)) {
+      const data = fs.readFileSync(configPath, 'utf-8')
+      const config = JSON.parse(data)
+      console.log('MySQL config loaded from:', configPath)
+      return { success: true, data: config }
+    }
+    
+    return { success: true, data: null }
+  } catch (error) {
+    console.error('Failed to load MySQL config:', error)
+    return { success: false, error: error.message }
+  }
+})
+
+/**
+ * 辅助函数：构建MySQL命令
+ * @param {string} sql - SQL语句
+ * @param {string} database - 数据库名（可选，优先使用此参数）
+ */
+function buildMysqlCommand(sql, database = null) {
+  const config = mysqlConfig
+  const host = config.host || 'localhost'
+  const port = config.port || 3306
+  const username = config.username
+  const password = config.password || ''
+  // 使用传入的database参数（优先）或配置中的database
+  const dbName = database || config.database || ''
+  
+  // 使用和连接时一样的安全格式
+  let cmd = `mysql -h"${host}" -P"${port}" -u"${username}"`
+  
+  if (password) {
+    // 使用单引号包裹密码，避免特殊字符问题
+    cmd += ` -p'${password.replace(/'/g, "'\\''")}'`
+  }
+  
+  // 添加数据库名
+  if (dbName) {
+    cmd += ` "${dbName}"`
+  }
+  
+  cmd += ' --batch --raw -e'
+  // SQL语句用双引号包裹，内部的双引号转义
+  cmd += ` "${sql.replace(/"/g, '\\"')}"`
+  
+  console.log('Built MySQL command:', cmd.replace(/-p'[^']+'/g, "-p'***'"))
+  
+  return cmd
+}
+
+/**
+ * 辅助函数：解析MySQL输出为JSON格式
+ */
+function parseMysqlOutput(output) {
+  const lines = output.trim().split('\n')
+  
+  if (lines.length === 0) {
+    return []
+  }
+  
+  // 第一行是列名（用Tab分隔）
+  const headers = lines[0].split('\t')
+  
+  // 后续行是数据
+  const rows = []
+  for (let i = 1; i < lines.length; i++) {
+    const values = lines[i].split('\t')
+    const row = {}
+    
+    headers.forEach((header, index) => {
+      row[header] = values[index] === 'NULL' ? null : values[index]
+    })
+    
+    rows.push(row)
+  }
+  
+  return rows
+}
 
 /**
  * 保存 HTTP 测试历史记录到文件
@@ -3482,6 +3812,393 @@ ipcMain.handle('system:getInfo', async () => {
     return { success: true, data: systemInfo }
   } catch (error) {
     console.error('❌ [System] Failed to get system information:', error)
+    return { success: false, error: error.message }
+  }
+})
+
+// ========================================
+// Redis 连接管理
+// ========================================
+
+const Redis = require('ioredis')
+
+let redisClient = null
+let redisConfig = null
+
+/**
+ * 连接 Redis 数据库
+ */
+ipcMain.handle('redis:connect', async (_event, config) => {
+  try {
+    console.log('🔵 [Redis] 开始连接 Redis...')
+    console.log('🔵 [Redis] 配置:', { ...config, password: config.password ? '***' : '(无)' })
+    
+    // 关闭之前的连接
+    if (redisClient) {
+      console.log('🔵 [Redis] 关闭旧连接...')
+      redisClient.disconnect()
+      redisClient = null
+    }
+    
+    // 构建连接选项
+    const options = {
+      host: config.host,
+      port: config.port,
+      password: config.password || undefined,
+      username: config.username || undefined,
+      db: 0, // 默认连接到 DB0
+      retryStrategy: (times) => {
+        if (times > 3) {
+          return null // 停止重试
+        }
+        return Math.min(times * 100, 3000)
+      },
+      maxRetriesPerRequest: 3,
+      enableReadyCheck: true,
+      lazyConnect: true, // 不自动连接，手动调用 connect()
+    }
+    
+    // SSL/TLS 配置
+    if (config.ssl) {
+      options.tls = {}
+    }
+    
+    // 创建 Redis 客户端
+    if (config.cluster) {
+      // Cluster 模式
+      console.log('🔵 [Redis] 使用 Cluster 模式')
+      redisClient = new Redis.Cluster([{ host: config.host, port: config.port }], {
+        redisOptions: options
+      })
+    } else if (config.sentinel) {
+      // Sentinel 模式
+      console.log('🔵 [Redis] 使用 Sentinel 模式')
+      redisClient = new Redis({
+        ...options,
+        sentinels: [{ host: config.host, port: config.port }],
+        name: 'mymaster', // sentinel master name
+      })
+    } else {
+      // 普通模式
+      console.log('🔵 [Redis] 使用普通模式')
+      redisClient = new Redis(options)
+    }
+    
+    // 连接错误处理
+    redisClient.on('error', (err) => {
+      console.error('❌ [Redis] 连接错误:', err.message)
+    })
+    
+    redisClient.on('ready', () => {
+      console.log('✅ [Redis] 连接就绪')
+    })
+    
+    // 尝试连接
+    await redisClient.connect()
+    
+    // 测试连接
+    const pong = await redisClient.ping()
+    if (pong !== 'PONG') {
+      throw new Error('Redis PING 测试失败')
+    }
+    
+    // 保存配置
+    redisConfig = config
+    
+    // 获取服务器信息
+    const info = await redisClient.info('server')
+    const version = info.match(/redis_version:([^\r\n]+)/)?.[1] || 'unknown'
+    
+    console.log('✅ [Redis] 连接成功')
+    console.log('✅ [Redis] 服务器版本:', version)
+    
+    return { 
+      success: true, 
+      data: {
+        version,
+        host: config.host,
+        port: config.port
+      }
+    }
+  } catch (error) {
+    console.error('❌ [Redis] 连接失败:', error.message)
+    
+    // 清理连接
+    if (redisClient) {
+      try {
+        redisClient.disconnect()
+      } catch (e) {
+        // 忽略断开连接时的错误
+      }
+      redisClient = null
+    }
+    
+    return { 
+      success: false, 
+      error: error.message || '连接失败' 
+    }
+  }
+})
+
+/**
+ * 断开 Redis 连接
+ */
+ipcMain.handle('redis:disconnect', async () => {
+  try {
+    console.log('🔵 [Redis] 断开连接...')
+    
+    if (redisClient) {
+      await redisClient.quit()
+      redisClient = null
+      redisConfig = null
+      console.log('✅ [Redis] 已断开连接')
+    }
+    
+    return { success: true }
+  } catch (error) {
+    console.error('❌ [Redis] 断开连接失败:', error.message)
+    return { success: false, error: error.message }
+  }
+})
+
+/**
+ * 执行 Redis 命令
+ */
+ipcMain.handle('redis:execute', async (_event, command) => {
+  try {
+    if (!redisClient) {
+      return { success: false, error: '请先连接 Redis' }
+    }
+    
+    console.log('🔵 [Redis] 执行命令:', command)
+    
+    // 解析命令
+    const parts = command.trim().split(/\s+/)
+    const cmd = parts[0].toLowerCase()
+    const args = parts.slice(1)
+    
+    // 执行命令
+    const result = await redisClient.call(cmd, ...args)
+    
+    console.log('✅ [Redis] 命令执行成功')
+    
+    return { 
+      success: true, 
+      data: result 
+    }
+  } catch (error) {
+    console.error('❌ [Redis] 命令执行失败:', error.message)
+    return { success: false, error: error.message }
+  }
+})
+
+/**
+ * 获取所有数据库信息
+ */
+ipcMain.handle('redis:getDatabases', async () => {
+  try {
+    if (!redisClient) {
+      return { success: false, error: '请先连接 Redis' }
+    }
+    
+    console.log('🔵 [Redis] 获取数据库列表...')
+    
+    // 获取 Redis 配置中的数据库数量（默认 16）
+    const configInfo = await redisClient.config('GET', 'databases')
+    const dbCount = parseInt(configInfo[1]) || 16
+    
+    // 获取每个数据库的键数量
+    const databases = []
+    const currentDb = await redisClient.call('SELECT', 0)
+    
+    for (let i = 0; i < dbCount; i++) {
+      await redisClient.select(i)
+      const dbSize = await redisClient.dbsize()
+      databases.push({
+        index: i,
+        keys: dbSize
+      })
+    }
+    
+    // 恢复到原来的数据库
+    await redisClient.select(0)
+    
+    console.log('✅ [Redis] 获取数据库列表成功')
+    
+    return { 
+      success: true, 
+      data: databases 
+    }
+  } catch (error) {
+    console.error('❌ [Redis] 获取数据库列表失败:', error.message)
+    return { success: false, error: error.message }
+  }
+})
+
+/**
+ * 选择数据库
+ */
+ipcMain.handle('redis:selectDb', async (_event, dbIndex) => {
+  try {
+    if (!redisClient) {
+      return { success: false, error: '请先连接 Redis' }
+    }
+    
+    console.log('🔵 [Redis] 切换到数据库', dbIndex)
+    
+    await redisClient.select(dbIndex)
+    
+    console.log('✅ [Redis] 数据库切换成功')
+    
+    return { success: true }
+  } catch (error) {
+    console.error('❌ [Redis] 数据库切换失败:', error.message)
+    return { success: false, error: error.message }
+  }
+})
+
+/**
+ * 获取键列表（使用 SCAN 命令，限制数量）
+ */
+ipcMain.handle('redis:getKeys', async (_event, pattern = '*', limit = 100) => {
+  try {
+    if (!redisClient) {
+      return { success: false, error: '请先连接 Redis' }
+    }
+    
+    console.log('🔵 [Redis] 获取键列表, 模式:', pattern, ', 限制:', limit)
+    
+    const keys = []
+    let cursor = '0'
+    
+    // 使用 SCAN 命令分批获取键，避免阻塞
+    do {
+      const result = await redisClient.scan(
+        cursor,
+        'MATCH', pattern,
+        'COUNT', 100  // 每次扫描的数量
+      )
+      
+      cursor = result[0]  // 新的游标
+      const batchKeys = result[1]  // 本批次的键
+      
+      keys.push(...batchKeys)
+      
+      // 达到限制数量则停止
+      if (keys.length >= limit) {
+        keys.splice(limit)  // 只保留前 limit 个
+        break
+      }
+      
+      // cursor 为 0 表示扫描完成
+    } while (cursor !== '0')
+    
+    console.log('✅ [Redis] 获取键列表成功, 共', keys.length, '个键')
+    
+    return { 
+      success: true, 
+      data: keys,
+      hasMore: cursor !== '0' || keys.length === limit  // 是否还有更多
+    }
+  } catch (error) {
+    console.error('❌ [Redis] 获取键列表失败:', error.message)
+    return { success: false, error: error.message }
+  }
+})
+
+/**
+ * 获取键值和类型
+ */
+ipcMain.handle('redis:getKeyValue', async (_event, key) => {
+  try {
+    if (!redisClient) {
+      return { success: false, error: '请先连接 Redis' }
+    }
+    
+    console.log('🔵 [Redis] 获取键值:', key)
+    
+    // 获取键的类型
+    const type = await redisClient.type(key)
+    
+    let value = null
+    
+    // 根据类型获取值
+    switch (type) {
+      case 'string':
+        value = await redisClient.get(key)
+        break
+      case 'list':
+        value = await redisClient.lrange(key, 0, -1)
+        break
+      case 'set':
+        value = await redisClient.smembers(key)
+        break
+      case 'zset':
+        value = await redisClient.zrange(key, 0, -1, 'WITHSCORES')
+        break
+      case 'hash':
+        value = await redisClient.hgetall(key)
+        break
+      default:
+        value = null
+    }
+    
+    console.log('✅ [Redis] 获取键值成功, 类型:', type)
+    
+    return { 
+      success: true, 
+      data: {
+        type,
+        value
+      }
+    }
+  } catch (error) {
+    console.error('❌ [Redis] 获取键值失败:', error.message)
+    return { success: false, error: error.message }
+  }
+})
+
+/**
+ * 设置键值
+ */
+ipcMain.handle('redis:setKeyValue', async (_event, key, value) => {
+  try {
+    if (!redisClient) {
+      return { success: false, error: '请先连接 Redis' }
+    }
+    
+    console.log('🔵 [Redis] 设置键值:', key)
+    
+    // 目前只支持 string 类型
+    await redisClient.set(key, value)
+    
+    console.log('✅ [Redis] 设置键值成功')
+    
+    return { success: true }
+  } catch (error) {
+    console.error('❌ [Redis] 设置键值失败:', error.message)
+    return { success: false, error: error.message }
+  }
+})
+
+/**
+ * 删除键
+ */
+ipcMain.handle('redis:deleteKey', async (_event, key) => {
+  try {
+    if (!redisClient) {
+      return { success: false, error: '请先连接 Redis' }
+    }
+    
+    console.log('🔵 [Redis] 删除键:', key)
+    
+    await redisClient.del(key)
+    
+    console.log('✅ [Redis] 删除键成功')
+    
+    return { success: true }
+  } catch (error) {
+    console.error('❌ [Redis] 删除键失败:', error.message)
     return { success: false, error: error.message }
   }
 })

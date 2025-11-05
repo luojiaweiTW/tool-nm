@@ -30,6 +30,15 @@
         
         <el-button
           v-if="connected"
+          type="success"
+          size="default"
+          @click="goToMySQLPage"
+        >
+          <i class="i-mdi-database" /> MySQL 查询
+        </el-button>
+        
+        <el-button
+          v-if="connected"
           type="danger"
           size="default"
           @click="disconnect"
@@ -819,12 +828,15 @@
         <NeonButton type="primary" @click="saveCommand">保存</NeonButton>
       </template>
     </el-dialog>
+
+    <!-- MySQL面板已移至独立页面 /tools/mysql -->
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick, watch, onBeforeUnmount } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useRouter } from 'vue-router'
 import NeonCard from '@/components/NeonCard.vue'
 import NeonInput from '@/components/NeonInput.vue'
 import NeonTextarea from '@/components/NeonTextarea.vue'
@@ -833,6 +845,8 @@ import { Terminal } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import '@xterm/xterm/css/xterm.css'
 import { useCommandHistoryStore } from '@/stores/command-history'
+
+const router = useRouter()
 
 // 声明 window.electron 类型
 interface SSHConnectConfig {
@@ -932,10 +946,13 @@ const commandInputRef = ref<HTMLTextAreaElement | null>(null)
 const terminalContainer = ref<HTMLDivElement | null>(null)
 let xterm: Terminal | null = null
 let fitAddon: FitAddon | null = null
+let pasteHandler: ((event: ClipboardEvent) => void) | null = null
 const isLoadingHistory = ref(false)
 const isConnecting = ref(false)
 let connectTimeout: any = null
 let clickTimeout: any = null
+
+// MySQL功能已移至独立页面 /tools/mysql
 
 // 快捷命令相关
 const quickCommands = ref([
@@ -2628,40 +2645,133 @@ const initTerminal = () => {
     }
   })
 
-  // 添加复制粘贴功能
-  const handleKeyboard = (event: KeyboardEvent) => {
+  // 备用复制方法（当 Clipboard API 权限被拒绝时使用）
+  const fallbackCopyTextToClipboard = (text: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const textArea = document.createElement('textarea')
+      textArea.value = text
+      textArea.style.position = 'fixed'
+      textArea.style.top = '0'
+      textArea.style.left = '0'
+      textArea.style.width = '2em'
+      textArea.style.height = '2em'
+      textArea.style.padding = '0'
+      textArea.style.border = 'none'
+      textArea.style.outline = 'none'
+      textArea.style.boxShadow = 'none'
+      textArea.style.background = 'transparent'
+      document.body.appendChild(textArea)
+      textArea.focus()
+      textArea.select()
+      
+      try {
+        const successful = document.execCommand('copy')
+        document.body.removeChild(textArea)
+        if (successful) {
+          resolve()
+        } else {
+          reject(new Error('execCommand failed'))
+        }
+      } catch (err) {
+        document.body.removeChild(textArea)
+        reject(err)
+      }
+    })
+  }
+  
+  // 添加复制粘贴功能 - 使用 xterm 的自定义键盘事件处理器
+  xterm.attachCustomKeyEventHandler((event: KeyboardEvent) => {
     // Ctrl+Shift+C 复制
     if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'c') {
       event.preventDefault()
       const selection = xterm.getSelection()
       if (selection) {
-        navigator.clipboard.writeText(selection).then(() => {
-          console.log('✓ Text copied to clipboard')
-        }).catch(err => {
-          console.error('Failed to copy:', err)
-        })
+        // 优先使用 Clipboard API，失败时使用备用方法
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(selection)
+            .then(() => {
+              console.log('✓ Text copied to clipboard (Clipboard API):', selection.substring(0, 50) + (selection.length > 50 ? '...' : ''))
+              ElMessage.success('已复制到剪贴板')
+            })
+            .catch(err => {
+              console.warn('Clipboard API failed, trying fallback method:', err)
+              // 使用备用方法
+              fallbackCopyTextToClipboard(selection)
+                .then(() => {
+                  console.log('✓ Text copied to clipboard (fallback):', selection.substring(0, 50) + (selection.length > 50 ? '...' : ''))
+                  ElMessage.success('已复制到剪贴板')
+                })
+                .catch(fallbackErr => {
+                  console.error('Failed to copy (both methods):', fallbackErr)
+                  ElMessage.error('复制失败：请手动选中文本后按 Ctrl+C')
+                })
+            })
+        } else {
+          // 直接使用备用方法
+          fallbackCopyTextToClipboard(selection)
+            .then(() => {
+              console.log('✓ Text copied to clipboard (fallback):', selection.substring(0, 50) + (selection.length > 50 ? '...' : ''))
+              ElMessage.success('已复制到剪贴板')
+            })
+            .catch(err => {
+              console.error('Failed to copy:', err)
+              ElMessage.error('复制失败：请手动选中文本后按 Ctrl+C')
+            })
+        }
+      } else {
+        console.log('No text selected')
+        ElMessage.warning('请先选中要复制的文本')
       }
-      return
+      return false // 阻止 xterm 默认处理
     }
     
     // Ctrl+Shift+V 粘贴
     if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'v') {
       event.preventDefault()
-      navigator.clipboard.readText().then(text => {
-        if (text && xterm) {
-          // 将粘贴的文本发送到终端
-          xterm.paste(text)
-          console.log('✓ Text pasted from clipboard')
-        }
-      }).catch(err => {
-        console.error('Failed to paste:', err)
-      })
-      return
+      
+      // 优先使用 Clipboard API
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        navigator.clipboard.readText()
+          .then(text => {
+            if (text && xterm) {
+              xterm.paste(text)
+              console.log('✓ Text pasted from clipboard (Clipboard API):', text.substring(0, 50) + (text.length > 50 ? '...' : ''))
+              ElMessage.success('已粘贴')
+            }
+          })
+          .catch(err => {
+            console.warn('Clipboard API failed for paste, trying fallback...', err)
+            // 备用方案：提示用户使用原生粘贴
+            ElMessage.info({
+              message: '请使用 Ctrl+V 或右键粘贴',
+              duration: 2000
+            })
+          })
+      } else {
+        // Clipboard API 不可用时提示用户使用原生方法
+        ElMessage.info({
+          message: '请使用 Ctrl+V 或右键粘贴',
+          duration: 2000
+        })
+      }
+      return false // 阻止 xterm 默认处理
+    }
+    
+    // 返回 true 让 xterm 正常处理其他按键
+    return true
+  })
+
+  // 添加原生 paste 事件监听器（用于 Ctrl+V 粘贴）
+  pasteHandler = (event: ClipboardEvent) => {
+    const text = event.clipboardData?.getData('text')
+    if (text && xterm) {
+      event.preventDefault()
+      xterm.paste(text)
+      console.log('✓ Text pasted from clipboard (Ctrl+V):', text.substring(0, 50) + (text.length > 50 ? '...' : ''))
+      ElMessage.success('已粘贴')
     }
   }
-  
-  // 监听终端容器的键盘事件
-  terminalContainer.value?.addEventListener('keydown', handleKeyboard)
+  terminalContainer.value?.addEventListener('paste', pasteHandler)
 
   // 窗口大小变化时自适应
   const handleResize = () => {
@@ -2681,6 +2791,12 @@ const initTerminal = () => {
 
 // 销毁xterm终端
 const destroyTerminal = () => {
+  // 清理 paste 事件监听器
+  if (pasteHandler && terminalContainer.value) {
+    terminalContainer.value.removeEventListener('paste', pasteHandler)
+    pasteHandler = null
+  }
+  
   if (xterm) {
     xterm.dispose()
     xterm = null
@@ -2980,6 +3096,17 @@ watch(showFilesPanel, (show) => {
     loadFiles()
   }
 })
+
+// ========================================
+// MySQL 功能（已移至独立页面）
+// ========================================
+
+/**
+ * 跳转到MySQL查询页面
+ */
+function goToMySQLPage() {
+  router.push('/tools/mysql')
+}
 
 // 监听 SSH 输出
 onMounted(() => {
@@ -4175,6 +4302,8 @@ onBeforeUnmount(() => {
   font-size: 13px;
   color: var(--neon-cyan);
 }
+
+/* MySQL样式已移至独立页面 /tools/mysql */
 
 </style>
 

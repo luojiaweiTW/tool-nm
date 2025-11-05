@@ -39,7 +39,7 @@
 2. **核心功能**：明确输入、处理逻辑、输出格式
 3. **技术实现**：选择合适的 npm 包或实现算法
 4. **UI设计**：输入区域、输出区域、操作按钮、快捷键
-5. **数据持久化**：是否需要保存历史记录（localStorage/文件系统）
+5. **数据持久化**：是否需要保存历史记录（统一使用文件系统存储到 appData 目录）
 6. **错误处理**：异常情况的提示和降级方案
 
 #### 架构分析场景
@@ -48,7 +48,7 @@
 2. **路由结构**：工具页面的路由配置、懒加载策略
 3. **组件分层**：布局组件（MainLayout）、公共组件（Neon系列）、工具页面
 4. **状态管理**：Pinia stores 的设计（ui.ts、各工具的状态）
-5. **数据存储**：配置文件、历史记录、截图、知识库的存储位置
+5. **数据存储**：所有数据统一存储到 `安装目录/appData/` 目录（配置文件、历史记录、截图、知识库等）
 
 ### B. 代码结构解析
 
@@ -62,8 +62,8 @@
 - 路由 → 工具页面（`pages/tools/XXX/Index.vue`）
 - 工具页面 → 霓虹组件（`components/NeonButton.vue`）
 - 工具页面 → 工具库调用（如 `crypto-js`、`marked`、`sql-formatter`）
-- 工具页面 → Pinia Store（状态管理）→ localStorage（持久化）
-- 工具页面 → Electron IPC（如文件保存、系统通知）
+- 工具页面 → Pinia Store（状态管理）→ Electron 文件系统（持久化到 appData 目录）
+- 工具页面 → Electron IPC（如文件保存、系统通知、数据持久化）
 
 #### 组件设计分析
 - **霓虹组件库**：分析 NeonButton、NeonInput、NeonCard 的设计模式
@@ -334,6 +334,267 @@ test().catch(console.error)
 - **IPC 通信**：渲染进程与主进程的消息传递
 - **安全策略**：contextIsolation、preload 脚本
 - **打包配置**：electron-builder.json、应用图标、安装程序
+- **数据存储**：所有持久化数据统一存储到 `安装目录/appData/` 目录
+
+#### 数据持久化规范（⚠️ 重要）
+
+**所有工具的数据都必须使用 Electron 文件系统持久化，不再使用 localStorage。**
+
+##### 存储位置
+
+```javascript
+// electron-main.cjs 中的 getDataPath() 函数
+function getDataPath() {
+  let basePath
+  
+  if (isDev) {
+    // 开发模式：使用项目根目录
+    basePath = __dirname
+  } else {
+    // 生产模式：使用安装目录（可执行文件所在目录）
+    basePath = path.dirname(process.execPath)
+  }
+  
+  // 在安装目录下创建 appData 文件夹
+  const dataPath = path.join(basePath, 'appData')
+  return dataPath
+}
+```
+
+**实际存储位置：**
+
+- **开发模式**：`项目根目录/appData/`
+- **生产模式**：`安装目录/appData/`（如 `C:\Users\用户名\AppData\Local\Programs\IWork\appData\`）
+
+**已存储的文件示例：**
+```
+appData/
+├── ssh-history.json           # SSH 连接历史
+├── ssh-commands.json          # SSH 快捷命令
+├── mysql-config.json          # MySQL 配置
+├── http-history.json          # HTTP 请求历史
+├── command-history.json       # 命令历史
+├── clipboard-history.json     # 剪贴板历史
+├── knowledge-index.json       # 知识库索引
+├── snippets-index.json        # 代码片段索引
+├── screenshots/               # 截图文件夹
+└── ...
+```
+
+##### 正确的存储方式
+
+**❌ 错误：使用 localStorage**
+```javascript
+// 不要这样做
+localStorage.setItem('tool-config', JSON.stringify(config))
+```
+
+**✅ 正确：使用 Electron 文件系统**
+
+**方式 1：使用通用文件 API（推荐）**
+```javascript
+// 保存数据
+async function saveData() {
+  if (window.electronAPI) {
+    const data = {
+      config: myConfig.value,
+      history: myHistory.value,
+    }
+    const result = await window.electronAPI.writeFile(
+      'tool-name-config.json',  // 相对于 appData/ 的路径
+      JSON.stringify(data, null, 2)
+    )
+    if (result.success) {
+      console.log('✓ 数据已保存到文件')
+    }
+  }
+}
+
+// 加载数据
+async function loadData() {
+  if (window.electronAPI) {
+    const exists = await window.electronAPI.fileExists('tool-name-config.json')
+    if (exists.exists) {
+      const result = await window.electronAPI.readFile('tool-name-config.json')
+      if (result.success) {
+        const data = JSON.parse(result.data)
+        myConfig.value = data.config || []
+        myHistory.value = data.history || []
+        console.log('✓ 数据已从文件加载')
+      }
+    }
+  }
+}
+```
+
+**方式 2：使用专用 IPC 通道**
+```javascript
+// electron-preload.cjs
+contextBridge.exposeInMainWorld('electron', {
+  tool: {
+    saveConfig: (config) => ipcRenderer.invoke('tool:saveConfig', config),
+    loadConfig: () => ipcRenderer.invoke('tool:loadConfig'),
+  }
+})
+
+// electron-main.cjs
+ipcMain.handle('tool:saveConfig', async (_event, config) => {
+  const configPath = path.join(getDataPath(), 'tool-config.json')
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8')
+  return { success: true }
+})
+
+ipcMain.handle('tool:loadConfig', async () => {
+  const configPath = path.join(getDataPath(), 'tool-config.json')
+  if (fs.existsSync(configPath)) {
+    const data = fs.readFileSync(configPath, 'utf-8')
+    return { success: true, data: JSON.parse(data) }
+  }
+  return { success: true, data: null }
+})
+
+// Vue 组件调用
+if (window.electron && window.electron.tool) {
+  const result = await window.electron.tool.saveConfig(config)
+}
+```
+
+##### 数据持久化开发流程
+
+**每次添加需要持久化的功能时：**
+
+1. **定义数据结构**
+   ```typescript
+   interface ToolConfig {
+     settings: Record<string, any>
+     history: string[]
+     favorites: any[]
+   }
+   ```
+
+2. **创建保存函数**
+   ```javascript
+   async function saveToFile() {
+     const data: ToolConfig = {
+       settings: settings.value,
+       history: history.value,
+       favorites: favorites.value,
+     }
+     await window.electronAPI.writeFile('tool-config.json', JSON.stringify(data, null, 2))
+   }
+   ```
+
+3. **创建加载函数**
+   ```javascript
+   async function loadFromFile() {
+     const result = await window.electronAPI.readFile('tool-config.json')
+     if (result.success) {
+       const data = JSON.parse(result.data)
+       settings.value = data.settings || {}
+       history.value = data.history || []
+       favorites.value = data.favorites || []
+     }
+   }
+   ```
+
+4. **在组件挂载时加载**
+   ```javascript
+   onMounted(async () => {
+     await loadFromFile()
+   })
+   ```
+
+5. **在数据变更时保存**
+   ```javascript
+   // 方式 1：监听数据变化自动保存
+   watch([settings, history, favorites], () => {
+     saveToFile()
+   }, { deep: true })
+   
+   // 方式 2：在操作后手动保存
+   async function addToHistory(item: string) {
+     history.value.unshift(item)
+     await saveToFile()
+   }
+   ```
+
+##### 文件命名规范
+
+- **工具配置**：`工具名-config.json`（如 `mysql-config.json`、`http-config.json`）
+- **历史记录**：`工具名-history.json`（如 `ssh-history.json`、`command-history.json`）
+- **用户数据**：`工具名-data.json`
+- **索引文件**：`工具名-index.json`（如 `knowledge-index.json`、`snippets-index.json`）
+
+##### 数据结构设计原则
+
+```javascript
+// ✅ 好的设计：统一存储，结构清晰
+{
+  "config": {
+    "theme": "dark",
+    "fontSize": 14
+  },
+  "history": [
+    { "id": 1, "content": "...", "timestamp": 1234567890 }
+  ],
+  "favorites": [
+    { "id": 1, "name": "...", "data": "..." }
+  ]
+}
+
+// ❌ 不好的设计：分散存储，难以维护
+localStorage.setItem('tool-config', '...')
+localStorage.setItem('tool-history', '...')
+localStorage.setItem('tool-favorites', '...')
+```
+
+##### 错误处理
+
+```javascript
+async function saveToFile() {
+  try {
+    if (!window.electronAPI) {
+      console.warn('Electron API 不可用')
+      return
+    }
+    
+    const result = await window.electronAPI.writeFile(filename, content)
+    if (!result.success) {
+      console.error('保存失败:', result.error)
+      ElMessage.error('保存失败：' + result.error)
+    }
+  } catch (error) {
+    console.error('保存异常:', error)
+    ElMessage.error('保存异常')
+  }
+}
+```
+
+##### 测试数据持久化
+
+**在自动化测试中验证：**
+
+```javascript
+// 1. 保存数据
+await saveData()
+await page.waitForTimeout(1000)
+
+// 2. 刷新页面
+await page.reload()
+await page.waitForLoadState('networkidle')
+
+// 3. 验证数据是否恢复
+const dataAfterReload = await page.evaluate(() => {
+  // 检查数据是否已加载
+  return window.myData
+})
+
+if (dataAfterReload) {
+  console.log('✅ 数据持久化正常')
+} else {
+  console.log('❌ 数据持久化失败')
+}
+```
 
 #### 性能优化
 - **路由懒加载**：所有工具页面按需加载
@@ -418,7 +679,7 @@ test().catch(console.error)
 ### 用户体验
 - ✅ 快捷键支持（useKeyboard）
 - ✅ 实时反馈（加载状态、成功/失败提示）
-- ✅ 数据持久化（历史记录、配置保存）
+- ✅ 数据持久化（所有数据存储到 `appData/` 目录，不使用 localStorage）
 - ✅ 错误处理（EmptyState、ErrorState 组件）
 - ✅ 滚动条清晰可见（霓虹蓝色，8px 宽度）
 - ✅ 自动滚动到最新内容（消息列表、日志）
@@ -997,53 +1258,81 @@ event.sender.send('feature:progress', {
 #### 数据持久化问题
 **问题表现：**
 - 刷新后数据丢失
-- localStorage 存储失败
+- 文件读写失败
 - 数据格式不一致
 
-**解决方案：**
+**解决方案（使用 Electron 文件系统）：**
 ```typescript
-// 使用 Pinia + localStorage 持久化
-import { defineStore } from 'pinia'
+// 使用 Electron 文件系统持久化（不再使用 localStorage）
+import { ref, watch, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
 
-export const useFeatureStore = defineStore('feature', {
-  state: () => ({
-    data: [] as DataItem[],
-    settings: {
-      autoSave: true,
-      theme: 'dark'
-    }
-  }),
-  
-  actions: {
-    loadFromStorage() {
-      const saved = localStorage.getItem('feature-data')
-      if (saved) {
-        try {
-          this.data = JSON.parse(saved)
-        } catch (error) {
-          console.error('Failed to load data:', error)
-        }
-      }
-    },
-    
-    saveToStorage() {
-      try {
-        localStorage.setItem('feature-data', JSON.stringify(this.data))
-      } catch (error) {
-        console.error('Failed to save data:', error)
-        ElMessage.error('保存失败：存储空间不足')
-      }
-    }
+const data = ref<DataItem[]>([])
+const settings = ref({
+  autoSave: true,
+  theme: 'dark'
+})
+
+// 保存到文件
+async function saveToFile() {
+  if (!window.electronAPI) {
+    console.warn('Electron API 不可用')
+    return
   }
+  
+  try {
+    const config = {
+      data: data.value,
+      settings: settings.value
+    }
+    
+    const result = await window.electronAPI.writeFile(
+      'feature-config.json',
+      JSON.stringify(config, null, 2)
+    )
+    
+    if (result.success) {
+      console.log('✓ 数据已保存到文件')
+    } else {
+      console.error('保存失败:', result.error)
+      ElMessage.error('保存失败')
+    }
+  } catch (error) {
+    console.error('保存异常:', error)
+  }
+}
+
+// 从文件加载
+async function loadFromFile() {
+  if (!window.electronAPI) {
+    console.warn('Electron API 不可用')
+    return
+  }
+  
+  try {
+    const exists = await window.electronAPI.fileExists('feature-config.json')
+    if (exists.exists) {
+      const result = await window.electronAPI.readFile('feature-config.json')
+      if (result.success) {
+        const config = JSON.parse(result.data)
+        data.value = config.data || []
+        settings.value = config.settings || {}
+        console.log('✓ 数据已从文件加载')
+      }
+    }
+  } catch (error) {
+    console.error('加载失败:', error)
+  }
+}
+
+// 组件挂载时加载
+onMounted(async () => {
+  await loadFromFile()
 })
 
-// 在组件中使用
-onMounted(() => {
-  store.loadFromStorage()
-})
-
-watch(() => store.data, () => {
-  store.saveToStorage()
+// 数据变化时自动保存
+watch([data, settings], () => {
+  saveToFile()
 }, { deep: true })
 ```
 

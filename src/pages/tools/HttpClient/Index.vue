@@ -151,6 +151,10 @@
               <i class="i-mdi-content-copy mr-1" />
               复制
             </NeonButton>
+            <NeonButton size="small" @click="handleGenerateTest" type="primary">
+              <i class="i-mdi-code-braces mr-1" />
+              生成测试代码
+            </NeonButton>
           </div>
         </template>
 
@@ -344,6 +348,20 @@
         </NeonButton>
       </template>
     </el-dialog>
+
+    <!-- 测试代码生成对话框 -->
+    <TestCodeGenerator
+      v-model:visible="showTestCodeDialog"
+      :request-data="{
+        method: method,
+        url: url,
+        headers: headers.filter(h => h.key && h.value),
+        body: body,
+        statusCode: response?.status,
+        responseData: response?.data
+      }"
+      @save-snippet="handleSaveSnippet"
+    />
   </div>
 </template>
 
@@ -355,6 +373,9 @@ import NeonCard from '@/components/NeonCard.vue'
 import NeonButton from '@/components/NeonButton.vue'
 import NeonInput from '@/components/NeonInput.vue'
 import NeonTextarea from '@/components/NeonTextarea.vue'
+import TestCodeGenerator from './components/TestCodeGenerator.vue'
+import { useSnippetStore } from '@/stores/snippet'
+import type { TestCodeTemplate } from '@/utils/testTemplates'
 
 interface Header {
   key: string
@@ -417,6 +438,10 @@ const saveForm = ref({
   name: '',
   description: ''
 })
+
+// 测试代码生成
+const showTestCodeDialog = ref(false)
+const snippetStore = useSnippetStore()
 
 // 过滤历史记录
 const filteredHistory = computed(() => {
@@ -586,6 +611,44 @@ async function copyResponse() {
     ElMessage.success('响应已复制到剪贴板')
   } catch {
     ElMessage.error('复制失败')
+  }
+}
+
+// 生成测试代码
+function handleGenerateTest() {
+  if (!response.value) {
+    ElMessage.warning('请先发送请求并获取响应')
+    return
+  }
+  showTestCodeDialog.value = true
+}
+
+// 保存测试代码到 Snippets
+async function handleSaveSnippet(code: string, template: TestCodeTemplate) {
+  try {
+    // 构造片段标题
+    const urlObj = new URL(url.value)
+    const path = urlObj.pathname.split('/').filter(Boolean).join('_')
+    const title = `${method.value}_${path || 'api'}_${template.name}_Test`
+    
+    // 保存到 Snippets
+    await snippetStore.addSnippet({
+      title: title,
+      description: `自动生成的 ${template.framework} 测试代码\n请求: ${method.value} ${url.value}`,
+      code: code,
+      language: template.language.toLowerCase() as any,
+      categoryId: 'template',
+      tags: ['api-test', 'auto-generated', template.language.toLowerCase()],
+      isPinned: false,
+      isFavorite: false,
+      isPublic: false,
+    })
+    
+    ElMessage.success('测试代码已保存到代码片段')
+    showTestCodeDialog.value = false
+  } catch (error: any) {
+    ElMessage.error(`保存失败: ${error.message}`)
+    console.error('Save snippet error:', error)
   }
 }
 
