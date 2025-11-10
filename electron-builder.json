@@ -2,6 +2,7 @@
   "appId": "com.iwork.app",
   "productName": "IWork",
   "copyright": "Copyright © 2025 IWork",
+  "afterPack": "./build-scripts/after-pack.cjs",
   "directories": {
     "output": "release-new",
     "buildResources": "build"

@@ -57,6 +57,7 @@ declare module 'vue' {
     ErrorState: typeof import('./components/ErrorState.vue')['default']
     Header: typeof import('./components/Header.vue')['default']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
+    HomeWeatherCard: typeof import('./components/HomeWeatherCard.vue')['default']
     ImageViewer: typeof import('./components/ImageViewer.vue')['default']
     MarkdownRenderer: typeof import('./components/MarkdownRenderer.vue')['default']
     NeonButton: typeof import('./components/NeonButton.vue')['default']

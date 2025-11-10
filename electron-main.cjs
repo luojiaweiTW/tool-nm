@@ -1104,14 +1104,14 @@ function registerScreenshotHotkey() {
         console.log(`✅✅✅ [Screenshots] Hotkey registered successfully: ${hotkey}`)
         console.log(`🎉 [Screenshots] Use ${hotkey} to take screenshots!`)
       } else {
-        console.error(`❌ [Screenshots] Failed to register hotkey: ${hotkey}`)
-        console.error('   This hotkey might be occupied by another application.')
-        console.error('   Please close other applications or check Windows hotkey settings.')
+        // 静默跳过，快捷键可能被其他应用占用
+        console.log(`⚠️ [Screenshots] Hotkey ${hotkey} is already in use, skipped registration`)
       }
       
       return registered ? hotkey : null
     } catch (error) {
-      console.error(`❌ [Screenshots] Error registering ${hotkey}:`, error)
+      // 静默跳过注册错误
+      console.log(`⚠️ [Screenshots] Unable to register ${hotkey}, skipped`)
       return null
     }
   }, 100)
@@ -1908,11 +1908,14 @@ ipcMain.handle('mysql:query', async (_event, sql, maxRows = 200, database = null
     let finalSql = sql.trim()
     
     // 检查是否为SELECT语句且没有LIMIT
-    if (/^SELECT/i.test(finalSql) && !/LIMIT\s+\d+/i.test(finalSql)) {
+    // ⚡ 修复：正则需要匹配 "LIMIT 200" 和 "LIMIT 0, 200" 两种格式
+    if (/^SELECT/i.test(finalSql) && !/LIMIT\s+\d+(\s*,\s*\d+)?/i.test(finalSql)) {
       // 移除末尾的分号
       finalSql = finalSql.replace(/;$/, '')
       finalSql += ` LIMIT ${maxRows}`
       console.log('Added LIMIT:', finalSql)
+    } else if (/LIMIT\s+\d+(\s*,\s*\d+)?/i.test(finalSql)) {
+      console.log('SQL already has LIMIT, skip adding')
     }
     
     // 如果指定了数据库，先切换

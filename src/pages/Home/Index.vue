@@ -2,6 +2,11 @@
   <div class="home-page">
     <!-- 欢迎横幅 -->
     <div class="hero-section">
+      <!-- 天气卡片（浮动在右上角） -->
+      <div class="floating-weather">
+        <HomeWeatherCard />
+      </div>
+
       <div class="hero-content">
         <!-- Logo 头像 -->
         <div class="hero-logo">
@@ -122,6 +127,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import HomeWeatherCard from '@/components/HomeWeatherCard.vue'
 
 const router = useRouter()
 const searchKeyword = ref('')
@@ -251,7 +257,6 @@ const categories = [
       { path: '/tools/ssh', title: 'SSH 连接', icon: 'i-mdi-console', description: '连接远程服务器' },
       { path: '/tools/mysql', title: 'MySQL 查询', icon: 'i-mdi-database', description: '通过SSH连接MySQL数据库' },
       { path: '/tools/redis', title: 'Redis 管理', icon: 'i-mdi-database-clock', description: '连接Redis数据库，管理键值' },
-      { path: '/tools/command-history', title: '命令历史', icon: 'i-mdi-history', description: '终端命令历史管理' },
       { path: '/tools/port-scanner', title: '端口扫描', icon: 'i-mdi-lan-connect', description: '扫描服务器开放端口' },
       { path: '/tools/ip-scanner', title: 'IP 扫描器', icon: 'i-mdi-ip-network-outline', description: '扫描局域网 IP 地址' },
       { path: '/tools/websocket', title: 'WebSocket 测试', icon: 'i-mdi-connection', description: '连接 WebSocket 服务器' },
@@ -389,6 +394,16 @@ onUnmounted(() => {
     radial-gradient(circle at 20% 50%, rgba(33, 230, 255, 0.2) 0%, transparent 50%),
     radial-gradient(circle at 80% 50%, rgba(155, 92, 255, 0.2) 0%, transparent 50%);
   pointer-events: none;
+}
+
+/* 浮动天气卡片 */
+.floating-weather {
+  position: absolute;
+  top: var(--spacing-xl);
+  right: var(--spacing-xl);
+  width: 240px;
+  z-index: 10;
+  pointer-events: auto;
 }
 
 .hero-content {
@@ -770,6 +785,14 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .hero-title {
     font-size: 2em;
+  }
+  
+  .floating-weather {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 100%;
+    margin-bottom: var(--spacing-xl);
   }
   
   .categories-grid {

@@ -307,6 +307,12 @@ const menuCategories: MenuCategory[] = [
         icon: 'i-mdi-crop',
         description: '裁剪图片、调整尺寸、预设比例',
       },
+      {
+        path: '/tools/base64-image',
+        title: 'Base64 图片转换',
+        icon: 'i-mdi-image-filter-center-focus',
+        description: '图片与 Base64 互转，支持拖拽上传',
+      },
     ]
   },
   {
@@ -411,12 +417,6 @@ const menuCategories: MenuCategory[] = [
         title: 'Redis 管理',
         icon: 'i-mdi-database-clock',
         description: '连接Redis数据库，执行命令和管理键值',
-      },
-      {
-        path: '/tools/command-history',
-        title: '命令历史',
-        icon: 'i-mdi-history',
-        description: '终端命令历史管理和收藏夹',
       },
       {
         path: '/tools/port-scanner',

@@ -180,3 +180,8 @@ xterm.attachCustomKeyEventHandler((event: KeyboardEvent) => {
 
 
 
+
+
+
+
+

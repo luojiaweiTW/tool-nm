@@ -293,7 +293,7 @@
     <el-dialog
       v-model="showHistoryManager"
       title="SSH 连接管理"
-      width="900px"
+      width="1200px"
       :close-on-click-modal="false"
     >
       <div class="history-manager">
@@ -353,31 +353,31 @@
                   <div class="history-card__title">
                     <i class="i-mdi-server" style="color: var(--neon-cyan);" />
                     <span class="history-card__name">{{ item.name || `${item.username}@${item.host}` }}</span>
-                    <el-tag v-if="item.authType === 'password'" size="small" type="warning">
+                    <el-tag v-if="item.authType === 'password'" size="default" type="warning">
                       <i class="i-mdi-key" /> 密码
                     </el-tag>
-                    <el-tag v-else size="small" type="success">
+                    <el-tag v-else size="default" type="success">
                       <i class="i-mdi-key-variant" /> 密钥
                     </el-tag>
                   </div>
                   <div class="history-card__actions">
                     <el-button
                       type="primary"
-                      size="small"
+                      size="default"
                       @click="editConnection(item, index)"
                     >
                       <i class="i-mdi-pencil" /> 编辑
                     </el-button>
                     <el-button
                       type="success"
-                      size="small"
+                      size="default"
                       @click="quickConnectFromManager(item)"
                     >
                       <i class="i-mdi-connection" /> 连接
                     </el-button>
                     <el-button
                       type="danger"
-                      size="small"
+                      size="default"
                       @click="confirmDeleteConnection(index)"
                     >
                       <i class="i-mdi-delete" />
@@ -844,7 +844,6 @@ import NeonButton from '@/components/NeonButton.vue'
 import { Terminal } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import '@xterm/xterm/css/xterm.css'
-import { useCommandHistoryStore } from '@/stores/command-history'
 
 const router = useRouter()
 
@@ -1041,9 +1040,6 @@ const transferProgress = ref({
   transferred: 0,
   total: 0
 })
-
-// 命令历史store
-const commandHistoryStore = useCommandHistoryStore()
 
 // 性能优化：防抖保存函数
 let saveHistoryTimer: any = null
@@ -1549,21 +1545,6 @@ const executeQuickCommand = async (command: string) => {
     
     // 计算执行时长
     const duration = Date.now() - startTime
-    
-    // 记录到命令历史
-    try {
-      await commandHistoryStore.addCommand({
-        command: command,
-        serverHost: sshForm.value.host,
-        serverName: sshForm.value.name || `${sshForm.value.username}@${sshForm.value.host}`,
-        workingDirectory: currentPath.value || undefined,
-        executedAt: new Date().toISOString(),
-        duration: duration,
-        exitCode: result.success ? 0 : 1,
-      })
-    } catch (error) {
-      console.error('Failed to save command history:', error)
-    }
     
     if (!result.success) {
       addTerminalLine(`执行失败: ${result.error}`, 'error')
@@ -2596,21 +2577,6 @@ const initTerminal = () => {
       if (data === '\r' || data === '\n') {
         const cmd = commandBuffer.trim()
         
-        // 记录非空命令到历史
-        if (cmd && cmd !== 'pwd') {  // 排除自动pwd命令
-          try {
-            commandHistoryStore.addCommand({
-              command: cmd,
-              serverHost: sshForm.value.host,
-              serverName: sshForm.value.name || `${sshForm.value.username}@${sshForm.value.host}`,
-              workingDirectory: currentPath.value || undefined,
-              executedAt: new Date().toISOString(),
-            })
-          } catch (error) {
-            console.error('Failed to save command history:', error)
-          }
-        }
-        
         // 如果启用路径跟随且执行了cd或ls/ll命令，自动执行pwd获取新路径
         const shouldFollow = followTerminalPath.value && (
           cmd.startsWith('cd ') ||
@@ -3117,11 +3083,6 @@ onMounted(() => {
   // 加载历史记录
   loadHistory().then(() => {
     console.log('Initial history loaded, count:', connectionHistory.value.length)
-  })
-  
-  // 初始化命令历史store
-  commandHistoryStore.initialize().then(() => {
-    console.log('Command history store initialized')
   })
   
   // 加载命令配置（新版）
@@ -4062,20 +4023,43 @@ onBeforeUnmount(() => {
 .history-list {
   max-height: calc(70vh - 100px); /* 🔧 响应式高度 */
   overflow-y: auto;
+  padding: 16px; /* ⚡ 进一步增加内边距 */
+}
+
+/* ⚡ 霓虹风格滚动条 */
+.history-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.history-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+  background: rgba(33, 230, 255, 0.5);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.history-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(33, 230, 255, 0.8);
 }
 
 .history-items {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: 0; /* ⚡ 移除 gap，改用 margin-bottom 控制 */
 }
 
 .history-card {
   background: var(--color-panel);
   border: 2px solid rgba(33, 230, 255, 0.2);
   border-radius: var(--radius-lg);
-  padding: var(--spacing-md);
+  padding: 32px; /* ⚡ 更大的内边距 */
+  margin-bottom: 32px; /* ⚡ 更大的卡片间距 */
   transition: all var(--transition-base);
+  min-height: 160px; /* ⚡ 增加最小高度 */
 }
 
 .history-card:hover {
@@ -4087,57 +4071,80 @@ onBeforeUnmount(() => {
 .history-card__content {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: 24px; /* ⚡ 更大的内容区域间距 */
 }
 
 .history-card__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: 32px; /* ⚡ 更大的标题和按钮间距 */
+  flex-wrap: wrap; /* ⚡ 允许换行，避免挤压 */
+  min-height: 52px; /* ⚡ 更大的最小高度 */
 }
 
 .history-card__title {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 18px; /* ⚡ 更大的图标和文字间距 */
   flex: 1;
+  min-width: 300px; /* ⚡ 增加标题区域最小宽度 */
 }
 
 .history-card__title i {
-  font-size: 20px;
+  font-size: 28px; /* ⚡ 进一步增大图标尺寸 */
+  flex-shrink: 0; /* ⚡ 防止图标被压缩 */
 }
 
 .history-card__name {
-  font-size: var(--font-size-base);
+  font-size: 18px; /* ⚡ 进一步增大字体 */
   font-weight: 600;
   color: var(--color-text);
+  line-height: 1.6; /* ⚡ 增加行高 */
 }
 
 .history-card__actions {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: 14px; /* ⚡ 更大的按钮间距 */
+  flex-shrink: 0; /* ⚡ 防止按钮被压缩 */
+  flex-wrap: wrap; /* ⚡ 小屏幕时允许换行 */
+}
+
+/* ⚡ 增加标签样式 */
+.history-card__title .el-tag {
+  padding: 7px 14px; /* ⚡ 更大的标签内边距 */
+  font-size: 14px; /* ⚡ 增大标签字体 */
+  height: auto;
+  line-height: 1.5;
 }
 
 .history-card__details {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-md);
-  padding-top: var(--spacing-sm);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  font-size: var(--font-size-sm);
+  gap: 32px; /* ⚡ 更大的详情项间距 */
+  padding-top: 20px; /* ⚡ 更大的上边距 */
+  border-top: 1px solid rgba(255, 255, 255, 0.15); /* ⚡ 更明显的分隔线 */
+  font-size: 15px; /* ⚡ 进一步增大字体 */
   color: var(--color-muted);
+  line-height: 2; /* ⚡ 更大的行高 */
 }
 
 .history-card__detail-item {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: 12px; /* ⚡ 更大的图标和文字间距 */
+  min-height: 32px; /* ⚡ 更大的最小高度 */
 }
 
 .history-card__detail-item i {
-  font-size: 14px;
+  font-size: 20px; /* ⚡ 更大的图标尺寸 */
   color: var(--neon-cyan);
+  flex-shrink: 0; /* ⚡ 防止图标被压缩 */
+}
+
+.history-card__detail-item span {
+  white-space: nowrap; /* ⚡ 防止文字换行 */
+  font-size: 15px; /* ⚡ 确保文字大小 */
 }
 
 /* 命令管理器 */

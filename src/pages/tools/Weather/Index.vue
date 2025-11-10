@@ -91,7 +91,12 @@
 
           <!-- 详细信息网格 -->
           <div class="weather-details-grid">
-            <NeonCard compact class="detail-item">
+            <!-- 体感温度 - 只有和风天气时显示 -->
+            <NeonCard 
+              v-if="weatherSource === 'qweather'" 
+              compact 
+              class="detail-item"
+            >
               <div class="detail-icon">
                 <i class="i-mdi-thermometer" />
               </div>
@@ -101,7 +106,12 @@
               </div>
             </NeonCard>
 
-            <NeonCard compact class="detail-item">
+            <!-- 相对湿度 - 只有和风天气时显示 -->
+            <NeonCard 
+              v-if="weatherSource === 'qweather'" 
+              compact 
+              class="detail-item"
+            >
               <div class="detail-icon">
                 <i class="i-mdi-water-percent" />
               </div>
@@ -111,7 +121,12 @@
               </div>
             </NeonCard>
 
-            <NeonCard compact class="detail-item">
+            <!-- 风速风向 - 只有和风天气时显示 -->
+            <NeonCard 
+              v-if="weatherSource === 'qweather'" 
+              compact 
+              class="detail-item"
+            >
               <div class="detail-icon">
                 <i class="i-mdi-weather-windy" />
               </div>
@@ -121,7 +136,12 @@
               </div>
             </NeonCard>
 
-            <NeonCard compact class="detail-item">
+            <!-- 气压 - 只有和风天气时显示 -->
+            <NeonCard 
+              v-if="weatherSource === 'qweather'" 
+              compact 
+              class="detail-item"
+            >
               <div class="detail-icon">
                 <i class="i-mdi-gauge" />
               </div>
@@ -131,7 +151,12 @@
               </div>
             </NeonCard>
 
-            <NeonCard compact class="detail-item">
+            <!-- 能见度 - 只有和风天气时显示 -->
+            <NeonCard 
+              v-if="weatherSource === 'qweather'" 
+              compact 
+              class="detail-item"
+            >
               <div class="detail-icon">
                 <i class="i-mdi-eye" />
               </div>
@@ -141,7 +166,12 @@
               </div>
             </NeonCard>
 
-            <NeonCard compact class="detail-item">
+            <!-- 云量 - 只有和风天气时显示 -->
+            <NeonCard 
+              v-if="weatherSource === 'qweather'" 
+              compact 
+              class="detail-item"
+            >
               <div class="detail-icon">
                 <i class="i-mdi-cloud" />
               </div>
@@ -150,6 +180,12 @@
                 <div class="detail-value">{{ weatherData.cloud }}%</div>
               </div>
             </NeonCard>
+          </div>
+          
+          <!-- 心知天气提示 -->
+          <div v-if="weatherSource === 'seniverse'" class="seniverse-tip">
+            <i class="i-mdi-information-outline" />
+            <span>当前使用心知天气，仅显示基础天气信息。如需查看详细数据（湿度、风力、气压等），请切换至和风天气。</span>
           </div>
 
           <!-- 未来天气预报 -->
@@ -189,39 +225,84 @@
     <!-- API Key 设置对话框 -->
     <el-dialog
       v-model="showApiKeyDialog"
-      title="配置和风天气 API Key"
-      width="600px"
+      title="配置天气 API Key"
+      width="700px"
       :close-on-click-modal="false"
       :show-close="!!apiKey"
     >
       <div class="api-key-dialog">
-        <div class="api-key-info">
-          <i class="i-mdi-information-outline" />
-          <div>
-            <p><strong>获取免费 API Key：</strong></p>
-            <ol>
-              <li>访问 <a href="https://dev.qweather.com/" target="_blank">和风天气开发平台</a></li>
-              <li>注册并登录账号</li>
-              <li>创建项目，选择 <strong>Web API</strong></li>
-              <li>创建 KEY，选择 <strong>免费订阅</strong></li>
-              <li>复制生成的 API Key 粘贴到下方</li>
-              <li>⚠️ <strong>重要</strong>：等待几分钟让 Key 激活后再使用</li>
-            </ol>
-            <p class="limit-info">免费版限制：每天 1000 次请求，仅支持开发测试</p>
-            <p class="api-key-warning">⚠️ 如果出现 403 错误，请检查 Key 是否已激活或是否选择了正确的订阅类型</p>
+        <!-- 天气源选择 -->
+        <div class="weather-source-selector">
+          <div class="selector-label">
+            <i class="i-mdi-weather-partly-cloudy" />
+            <span>选择天气数据源</span>
           </div>
+          <el-radio-group v-model="weatherSource" size="large">
+            <el-radio-button value="qweather">和风天气</el-radio-button>
+            <el-radio-button value="seniverse">心知天气</el-radio-button>
+          </el-radio-group>
         </div>
-        
-        <el-input
-          v-model="tempApiKey"
-          placeholder="请输入和风天气 API Key"
-          clearable
-          size="large"
-        >
-          <template #prefix>
-            <i class="i-mdi-key" />
-          </template>
-        </el-input>
+
+        <!-- 和风天气配置 -->
+        <div v-if="weatherSource === 'qweather'" class="api-key-config">
+          <div class="api-key-info">
+            <i class="i-mdi-information-outline" />
+            <div>
+              <p><strong>获取和风天气免费 API Key：</strong></p>
+              <ol>
+                <li>访问 <a href="https://dev.qweather.com/" target="_blank">和风天气开发平台</a></li>
+                <li>注册并登录账号</li>
+                <li>创建项目，选择 <strong>Web API</strong></li>
+                <li>创建 KEY，选择 <strong>免费订阅</strong></li>
+                <li>复制生成的 API Key 粘贴到下方</li>
+                <li>⚠️ <strong>重要</strong>：等待几分钟让 Key 激活后再使用</li>
+              </ol>
+              <p class="limit-info">免费版限制：每天 1000 次请求，仅支持开发测试</p>
+              <p class="api-key-warning">⚠️ 如果出现 403 错误，请检查 Key 是否已激活或是否选择了正确的订阅类型</p>
+            </div>
+          </div>
+          
+          <el-input
+            v-model="tempApiKey"
+            placeholder="请输入和风天气 API Key"
+            clearable
+            size="large"
+          >
+            <template #prefix>
+              <i class="i-mdi-key" />
+            </template>
+          </el-input>
+        </div>
+
+        <!-- 心知天气配置 -->
+        <div v-if="weatherSource === 'seniverse'" class="api-key-config">
+          <div class="api-key-info seniverse-info">
+            <i class="i-mdi-information-outline" />
+            <div>
+              <p><strong>获取心知天气免费 API Key：</strong></p>
+              <ol>
+                <li>访问 <a href="https://www.seniverse.com/" target="_blank">心知天气官网</a></li>
+                <li>注册并登录账号</li>
+                <li>进入控制台，创建新的 API Key</li>
+                <li>选择 <strong>免费版</strong>（每天 400 次请求）</li>
+                <li>复制生成的 API Key 粘贴到下方</li>
+              </ol>
+              <p class="limit-info">免费版限制：每天 400 次请求，适合个人使用</p>
+              <p class="api-key-tip">💡 提示：心知天气支持中文城市名、拼音、经纬度查询</p>
+            </div>
+          </div>
+          
+          <el-input
+            v-model="tempApiKey"
+            placeholder="请输入心知天气 API Key"
+            clearable
+            size="large"
+          >
+            <template #prefix>
+              <i class="i-mdi-key" />
+            </template>
+          </el-input>
+        </div>
 
         <div class="api-key-actions">
           <el-button @click="cancelApiKeyDialog" v-if="apiKey">取消</el-button>
@@ -356,10 +437,18 @@ const searchLoading = ref(false)
 const apiKey = ref('')
 const tempApiKey = ref('')
 const showApiKeyDialog = ref(false)
+const weatherSource = ref<'qweather' | 'seniverse'>('qweather') // 天气源：qweather（和风）或 seniverse（心知）
 
-// 本地存储键名
-const STORAGE_KEY = 'weather-cities'
-const API_KEY_STORAGE = 'weather-api-key'
+// 配置文件名
+const CONFIG_FILE = 'weather-config.json'
+
+// 配置接口
+interface WeatherConfig {
+  source: 'qweather' | 'seniverse'
+  qweatherKey: string
+  seniverseKey: string
+  cities: City[]
+}
 
 // 预设热门城市列表（免费版API不支持城市搜索，提供常用城市）
 const PRESET_CITIES: City[] = [
@@ -386,9 +475,8 @@ const PRESET_CITIES: City[] = [
 ]
 
 // 初始化
-onMounted(() => {
-  loadApiKey()
-  loadSavedCities()
+onMounted(async () => {
+  await loadConfig()
   
   // 如果没有 API Key，自动打开配置对话框
   if (!apiKey.value) {
@@ -396,37 +484,131 @@ onMounted(() => {
   }
 })
 
-// 加载 API Key
-function loadApiKey() {
+// 从文件加载配置
+async function loadConfig() {
   try {
-    const saved = localStorage.getItem(API_KEY_STORAGE)
-    if (saved) {
-      apiKey.value = saved
+    let config: WeatherConfig | null = null
+    
+    // Electron 环境：从文件加载
+    if (window.electronAPI) {
+      const exists = await window.electronAPI.fileExists(CONFIG_FILE)
+      if (exists) {
+        const result = await window.electronAPI.readFile(CONFIG_FILE)
+        if (result.success && result.data) {
+          config = JSON.parse(result.data)
+          console.log('✓ 从文件加载配置:', CONFIG_FILE)
+        }
+      }
+    } 
+    // 浏览器环境：从 localStorage 加载
+    else {
+      const saved = localStorage.getItem('weather-config')
+      if (saved) {
+        config = JSON.parse(saved)
+        console.log('💡 从 localStorage 加载配置')
+      }
+    }
+    
+    // 应用配置
+    if (config) {
+      weatherSource.value = config.source || 'qweather'
+      savedCities.value = config.cities || []
+      
+      // 根据天气源加载对应的 API Key
+      if (config.source === 'qweather' && config.qweatherKey) {
+        apiKey.value = config.qweatherKey
+      } else if (config.source === 'seniverse' && config.seniverseKey) {
+        apiKey.value = config.seniverseKey
+      }
+      
+      console.log('✓ 天气配置已加载', {
+        source: weatherSource.value,
+        hasKey: !!apiKey.value,
+        citiesCount: savedCities.value.length
+      })
+      
+      // 自动选中第一个城市
+      if (savedCities.value.length > 0) {
+        selectCity(savedCities.value[0])
+      }
+    } else {
+      console.log('ℹ️  未找到保存的配置，使用默认配置')
     }
   } catch (error) {
-    console.error('Failed to load API key:', error)
+    console.error('❌ 加载天气配置失败:', error)
+  }
+}
+
+// 保存配置到文件
+async function saveConfig() {
+  try {
+    const config: WeatherConfig = {
+      source: weatherSource.value,
+      qweatherKey: weatherSource.value === 'qweather' ? apiKey.value : '',
+      seniverseKey: weatherSource.value === 'seniverse' ? apiKey.value : '',
+      cities: savedCities.value
+    }
+    
+    // Electron 环境：保存到文件系统
+    if (window.electronAPI) {
+      // 保留其他天气源的 Key
+      const exists = await window.electronAPI.fileExists(CONFIG_FILE)
+      if (exists) {
+        const result = await window.electronAPI.readFile(CONFIG_FILE)
+        if (result.success && result.data) {
+          const oldConfig: WeatherConfig = JSON.parse(result.data)
+          if (weatherSource.value === 'qweather' && oldConfig.seniverseKey) {
+            config.seniverseKey = oldConfig.seniverseKey
+          } else if (weatherSource.value === 'seniverse' && oldConfig.qweatherKey) {
+            config.qweatherKey = oldConfig.qweatherKey
+          }
+        }
+      }
+
+      const result = await window.electronAPI.writeFile(
+        CONFIG_FILE,
+        JSON.stringify(config, null, 2)
+      )
+
+      if (result.success) {
+        console.log('✓ 天气配置已保存到文件:', CONFIG_FILE)
+      } else {
+        console.error('❌ 保存配置失败:', result.error)
+        ElMessage.error('保存配置失败：' + result.error)
+      }
+    } 
+    // 浏览器环境：使用 localStorage 降级
+    else {
+      console.log('💡 浏览器环境，使用 localStorage 保存配置')
+      localStorage.setItem('weather-config', JSON.stringify(config))
+      console.log('✓ 天气配置已保存到 localStorage')
+    }
+  } catch (error) {
+    console.error('❌ 保存配置异常:', error)
+    ElMessage.error('保存配置失败')
   }
 }
 
 // 保存 API Key
-function saveApiKey() {
+async function saveApiKey() {
   if (!tempApiKey.value.trim()) {
     ElMessage.warning('请输入 API Key')
     return
   }
   
   try {
-    localStorage.setItem(API_KEY_STORAGE, tempApiKey.value.trim())
     apiKey.value = tempApiKey.value.trim()
+    await saveConfig()
+    
     showApiKeyDialog.value = false
-    ElMessage.success('API Key 配置成功！')
+    ElMessage.success(`${weatherSource.value === 'qweather' ? '和风天气' : '心知天气'} API Key 配置成功！`)
     
     // 如果有城市，重新加载天气
     if (currentCity.value) {
       loadWeatherData()
     }
   } catch (error) {
-    console.error('Failed to save API key:', error)
+    console.error('保存 API Key 失败:', error)
     ElMessage.error('保存失败')
   }
 }
@@ -437,28 +619,9 @@ function cancelApiKeyDialog() {
   showApiKeyDialog.value = false
 }
 
-// 加载保存的城市
-function loadSavedCities() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) {
-      savedCities.value = JSON.parse(saved)
-      if (savedCities.value.length > 0) {
-        selectCity(savedCities.value[0])
-      }
-    }
-  } catch (error) {
-    console.error('Failed to load saved cities:', error)
-  }
-}
-
 // 保存城市列表
-function saveCities() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(savedCities.value))
-  } catch (error) {
-    console.error('Failed to save cities:', error)
-  }
+async function saveCities() {
+  await saveConfig()
 }
 
 // 搜索城市（从预设列表中搜索）
@@ -486,6 +649,49 @@ watch(searchQuery, () => {
   searchTimeout = setTimeout(() => {
     searchCity()
   }, 300)
+})
+
+// 监听天气源切换
+watch(weatherSource, async (newSource) => {
+  // 加载对应天气源的 API Key
+  try {
+    let config: WeatherConfig | null = null
+    
+    // Electron 环境
+    if (window.electronAPI) {
+      const exists = await window.electronAPI.fileExists(CONFIG_FILE)
+      if (exists) {
+        const result = await window.electronAPI.readFile(CONFIG_FILE)
+        if (result.success && result.data) {
+          config = JSON.parse(result.data)
+        }
+      }
+    } 
+    // 浏览器环境
+    else {
+      const saved = localStorage.getItem('weather-config')
+      if (saved) {
+        config = JSON.parse(saved)
+      }
+    }
+    
+    if (config) {
+      if (newSource === 'qweather' && config.qweatherKey) {
+        apiKey.value = config.qweatherKey
+        tempApiKey.value = config.qweatherKey
+      } else if (newSource === 'seniverse' && config.seniverseKey) {
+        apiKey.value = config.seniverseKey
+        tempApiKey.value = config.seniverseKey
+      } else {
+        apiKey.value = ''
+        tempApiKey.value = ''
+      }
+      
+      console.log('✓ 切换天气源:', newSource, '有Key:', !!apiKey.value)
+    }
+  } catch (error) {
+    console.error('❌ 加载天气源配置失败:', error)
+  }
 })
 
 // 添加城市
@@ -549,94 +755,12 @@ async function loadWeatherData() {
   forecast.value = []
 
   try {
-    console.log('Loading weather for city:', currentCity.value.name, currentCity.value.id)
+    console.log('Loading weather for city:', currentCity.value.name, 'source:', weatherSource.value)
     
-    // 获取实时天气
-    const weatherUrl = `https://devapi.qweather.com/v7/weather/now?location=${currentCity.value.id}&key=${apiKey.value}&lang=zh`
-    console.log('Weather URL:', weatherUrl)
-    
-    const weatherResponse = await fetch(weatherUrl)
-    console.log('Weather response status:', weatherResponse.status)
-    
-    // 处理 HTTP 状态码错误
-    if (weatherResponse.status === 403) {
-      throw new Error('API Key 没有访问权限（403）\n请检查：\n1. Key 是否已激活（需等待几分钟）\n2. 是否选择了正确的订阅类型（免费订阅/Web API）\n3. Key 是否已过期或被禁用')
-    }
-    
-    if (!weatherResponse.ok) {
-      throw new Error(`HTTP 错误：${weatherResponse.status}`)
-    }
-    
-    const weatherResult = await weatherResponse.json()
-    console.log('Weather result:', weatherResult)
-
-    // 检查 API 返回的 code
-    if (weatherResult.code === '200') {
-      const now = weatherResult.now
-      weatherData.value = {
-        temp: now.temp,
-        feelsLike: now.feelsLike,
-        text: now.text,
-        humidity: now.humidity,
-        windDir: now.windDir,
-        windScale: now.windScale,
-        pressure: now.pressure,
-        vis: now.vis,
-        cloud: now.cloud,
-        updateTime: now.obsTime,
-      }
-
-      // 更新城市列表中的简要天气信息
-      const cityIndex = savedCities.value.findIndex(c => c.id === currentCity.value!.id)
-      if (cityIndex > -1) {
-        savedCities.value[cityIndex].weather = {
-          temp: now.temp,
-          text: now.text,
-        }
-        saveCities()
-      }
-    } else {
-      // 处理 API 错误码
-      const errorMessages: Record<string, string> = {
-        '400': 'API 请求参数错误',
-        '401': 'API Key 无效或未激活',
-        '402': 'API Key 已超出请求额度',
-        '403': 'API Key 没有访问权限，请检查订阅状态',
-        '404': '请求的数据不存在',
-        '429': '请求过于频繁，请稍后再试',
-        '500': '服务器错误，请稍后再试',
-      }
-      const errorMsg = errorMessages[weatherResult.code] || `API 返回错误: ${weatherResult.code}`
-      throw new Error(errorMsg)
-    }
-
-    // 获取3天天气预报
-    const forecastUrl = `https://devapi.qweather.com/v7/weather/3d?location=${currentCity.value.id}&key=${apiKey.value}&lang=zh`
-    console.log('Forecast URL:', forecastUrl)
-    
-    const forecastResponse = await fetch(forecastUrl)
-    console.log('Forecast response status:', forecastResponse.status)
-    
-    // 处理 HTTP 状态码错误
-    if (!forecastResponse.ok) {
-      console.warn('Forecast API HTTP error:', forecastResponse.status)
-      return // 预报失败不影响实时天气显示
-    }
-    
-    const forecastResult = await forecastResponse.json()
-    console.log('Forecast result:', forecastResult)
-
-    if (forecastResult.code === '200') {
-      forecast.value = forecastResult.daily.map((day: any) => ({
-        date: day.fxDate,
-        tempMax: day.tempMax,
-        tempMin: day.tempMin,
-        textDay: day.textDay,
-        textNight: day.textNight,
-      }))
-    } else {
-      console.warn('Forecast API warning:', forecastResult.code)
-      // 预报数据失败不影响实时天气显示
+    if (weatherSource.value === 'qweather') {
+      await loadQweatherData()
+    } else if (weatherSource.value === 'seniverse') {
+      await loadSeniverseData()
     }
   } catch (error: any) {
     console.error('Load weather data failed:', error)
@@ -645,6 +769,187 @@ async function loadWeatherData() {
     forecast.value = []
   } finally {
     loading.value = false
+  }
+}
+
+// 加载和风天气数据
+async function loadQweatherData() {
+  if (!currentCity.value) return
+  
+  // 获取实时天气
+  const weatherUrl = `https://devapi.qweather.com/v7/weather/now?location=${currentCity.value.id}&key=${apiKey.value}&lang=zh`
+  console.log('QWeather URL:', weatherUrl)
+  
+  const weatherResponse = await fetch(weatherUrl)
+  console.log('Weather response status:', weatherResponse.status)
+  
+  // 处理 HTTP 状态码错误
+  if (weatherResponse.status === 403) {
+    throw new Error('API Key 没有访问权限（403）\n请检查：\n1. Key 是否已激活（需等待几分钟）\n2. 是否选择了正确的订阅类型（免费订阅/Web API）\n3. Key 是否已过期或被禁用')
+  }
+  
+  if (!weatherResponse.ok) {
+    throw new Error(`HTTP 错误：${weatherResponse.status}`)
+  }
+  
+  const weatherResult = await weatherResponse.json()
+  console.log('Weather result:', weatherResult)
+
+  // 检查 API 返回的 code
+  if (weatherResult.code === '200') {
+    const now = weatherResult.now
+    weatherData.value = {
+      temp: now.temp,
+      feelsLike: now.feelsLike,
+      text: now.text,
+      humidity: now.humidity,
+      windDir: now.windDir,
+      windScale: now.windScale,
+      pressure: now.pressure,
+      vis: now.vis,
+      cloud: now.cloud,
+      updateTime: now.obsTime,
+    }
+
+    // 更新城市列表中的简要天气信息
+    const cityIndex = savedCities.value.findIndex(c => c.id === currentCity.value!.id)
+    if (cityIndex > -1) {
+      savedCities.value[cityIndex].weather = {
+        temp: now.temp,
+        text: now.text,
+      }
+      saveCities()
+    }
+  } else {
+    // 处理 API 错误码
+    const errorMessages: Record<string, string> = {
+      '400': 'API 请求参数错误',
+      '401': 'API Key 无效或未激活',
+      '402': 'API Key 已超出请求额度',
+      '403': 'API Key 没有访问权限，请检查订阅状态',
+      '404': '请求的数据不存在',
+      '429': '请求过于频繁，请稍后再试',
+      '500': '服务器错误，请稍后再试',
+    }
+    const errorMsg = errorMessages[weatherResult.code] || `API 返回错误: ${weatherResult.code}`
+    throw new Error(errorMsg)
+  }
+
+  // 获取3天天气预报
+  const forecastUrl = `https://devapi.qweather.com/v7/weather/3d?location=${currentCity.value.id}&key=${apiKey.value}&lang=zh`
+  console.log('Forecast URL:', forecastUrl)
+  
+  const forecastResponse = await fetch(forecastUrl)
+  console.log('Forecast response status:', forecastResponse.status)
+  
+  // 处理 HTTP 状态码错误
+  if (!forecastResponse.ok) {
+    console.warn('Forecast API HTTP error:', forecastResponse.status)
+    return // 预报失败不影响实时天气显示
+  }
+  
+  const forecastResult = await forecastResponse.json()
+  console.log('Forecast result:', forecastResult)
+
+  if (forecastResult.code === '200') {
+    forecast.value = forecastResult.daily.map((day: any) => ({
+      date: day.fxDate,
+      tempMax: day.tempMax,
+      tempMin: day.tempMin,
+      textDay: day.textDay,
+      textNight: day.textNight,
+    }))
+  } else {
+    console.warn('Forecast API warning:', forecastResult.code)
+    // 预报数据失败不影响实时天气显示
+  }
+}
+
+// 加载心知天气数据
+async function loadSeniverseData() {
+  if (!currentCity.value) return
+  
+  // 心知天气支持城市名拼音、中文名、经纬度
+  // 优先使用城市名拼音
+  const location = currentCity.value.name
+  
+  // 获取实时天气
+  const weatherUrl = `https://api.seniverse.com/v3/weather/now.json?key=${apiKey.value}&location=${encodeURIComponent(location)}&language=zh-Hans&unit=c`
+  console.log('Seniverse URL:', weatherUrl)
+  
+  const weatherResponse = await fetch(weatherUrl)
+  console.log('Weather response status:', weatherResponse.status)
+  
+  if (!weatherResponse.ok) {
+    if (weatherResponse.status === 403) {
+      throw new Error('API Key 没有访问权限（403）\n请检查 Key 是否有效')
+    }
+    throw new Error(`HTTP 错误：${weatherResponse.status}`)
+  }
+  
+  const weatherResult = await weatherResponse.json()
+  console.log('Weather result:', weatherResult)
+
+  // 心知天气的数据结构
+  if (weatherResult.results && weatherResult.results.length > 0) {
+    const result = weatherResult.results[0]
+    const now = result.now
+    
+    weatherData.value = {
+      temp: now.temperature,
+      feelsLike: now.temperature, // 心知天气免费版显示实际温度
+      text: now.text,
+      humidity: '', // 空字符串表示无数据，UI 会隐藏
+      windDir: '',
+      windScale: '',
+      pressure: '',
+      vis: '',
+      cloud: '',
+      updateTime: result.last_update,
+    }
+
+    // 更新城市列表中的简要天气信息
+    const cityIndex = savedCities.value.findIndex(c => c.id === currentCity.value!.id)
+    if (cityIndex > -1) {
+      savedCities.value[cityIndex].weather = {
+        temp: now.temperature,
+        text: now.text,
+      }
+      saveCities()
+    }
+  } else {
+    throw new Error('未能获取天气数据，请检查城市名称或 API Key')
+  }
+
+  // 获取3天天气预报
+  try {
+    const forecastUrl = `https://api.seniverse.com/v3/weather/daily.json?key=${apiKey.value}&location=${encodeURIComponent(location)}&language=zh-Hans&unit=c&start=0&days=3`
+    console.log('Forecast URL:', forecastUrl)
+    
+    const forecastResponse = await fetch(forecastUrl)
+    console.log('Forecast response status:', forecastResponse.status)
+    
+    if (forecastResponse.ok) {
+      const forecastResult = await forecastResponse.json()
+      console.log('Forecast result:', forecastResult)
+
+      if (forecastResult.results && forecastResult.results.length > 0) {
+        const daily = forecastResult.results[0].daily
+        forecast.value = daily.map((day: any) => ({
+          date: day.date,
+          tempMax: day.high,
+          tempMin: day.low,
+          textDay: day.text_day,
+          textNight: day.text_night,
+        }))
+      }
+    } else {
+      console.warn('Forecast API HTTP error:', forecastResponse.status)
+      // 预报失败不影响实时天气显示
+    }
+  } catch (error) {
+    console.warn('加载天气预报失败:', error)
+    // 预报数据失败不影响实时天气显示
   }
 }
 
@@ -901,6 +1206,27 @@ function formatDate(dateStr: string): string {
   gap: var(--spacing-md);
 }
 
+/* 心知天气提示 */
+.seniverse-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  margin-top: var(--spacing-md);
+  background: rgba(255, 193, 7, 0.08);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: var(--radius-md);
+  color: #ffc107;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.seniverse-tip i {
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
 .detail-item {
   display: flex;
   align-items: center;
@@ -992,6 +1318,37 @@ function formatDate(dateStr: string): string {
   gap: var(--spacing-lg);
 }
 
+/* 天气源选择器 */
+.weather-source-selector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: rgba(185, 107, 217, 0.05);
+  border: 1px solid rgba(185, 107, 217, 0.2);
+  border-radius: var(--radius-md);
+}
+
+.selector-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-weight: 600;
+  color: var(--neon-purple);
+  font-size: 15px;
+}
+
+.selector-label i {
+  font-size: 20px;
+}
+
+/* API 配置区域 */
+.api-key-config {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
 .api-key-info {
   display: flex;
   gap: var(--spacing-md);
@@ -1000,6 +1357,15 @@ function formatDate(dateStr: string): string {
   border: 1px solid rgba(33, 230, 255, 0.2);
   border-radius: var(--radius-md);
   font-size: 14px;
+}
+
+.api-key-info.seniverse-info {
+  background: rgba(255, 193, 7, 0.05);
+  border-color: rgba(255, 193, 7, 0.2);
+}
+
+.api-key-info.seniverse-info i {
+  color: #ffc107;
 }
 
 .api-key-info i {
@@ -1039,6 +1405,16 @@ function formatDate(dateStr: string): string {
   border-left: 2px solid #ff5733;
   border-radius: var(--radius-sm);
   color: #ff5733;
+  font-size: 12px;
+}
+
+.api-key-tip {
+  margin-top: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: rgba(255, 193, 7, 0.1);
+  border-left: 2px solid #ffc107;
+  border-radius: var(--radius-sm);
+  color: #ffc107;
   font-size: 12px;
 }
 

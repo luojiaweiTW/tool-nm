@@ -237,11 +237,11 @@
                 size="small"
                 style="width: 120px"
               />
-              <span style="font-size: 13px; color: var(--color-muted);">最大行数</span>
+              <span style="font-size: 13px; color: var(--color-muted);">每页条数</span>
               <el-button
                 type="primary"
                 size="default"
-                @click="executeQuery"
+                @click="executeQuery(1)"
                 :loading="mysqlLoading"
                 :disabled="!mysqlConnected || !sqlInput.trim()"
               >
@@ -256,8 +256,27 @@
             :rows="8"
             placeholder="输入 SQL 查询语句...&#10;提示：&#10;- 按 F5 执行查询&#10;- 左侧可选择表或SQL模板&#10;- SELECT 查询会自动添加 LIMIT"
             class="sql-textarea"
-            @keydown.f5.prevent="executeQuery"
+            @keydown.f5.prevent="executeQuery(1)"
           />
+        </div>
+
+        <!-- 错误提示 -->
+        <div v-if="queryError" class="query-error">
+          <div class="query-error__header">
+            <i class="i-mdi-alert-circle" />
+            <span>SQL 查询错误</span>
+            <el-button
+              type="text"
+              size="small"
+              @click="queryError = ''"
+              style="margin-left: auto; color: var(--neon-pink);"
+            >
+              <i class="i-mdi-close" />
+            </el-button>
+          </div>
+          <div class="query-error__content">
+            <pre>{{ queryError }}</pre>
+          </div>
         </div>
 
         <!-- 查询结果 -->
@@ -265,9 +284,15 @@
           <div class="result-header">
             <div class="result-info">
               <i class="i-mdi-table-check" />
-              <span>查询结果: {{ queryResult.rows.length }} 条记录</span>
+              <span>
+                总共 <strong style="color: var(--neon-cyan);">{{ totalRows }}</strong> 条
+                | 当前页 <strong style="color: var(--neon-lime);">{{ queryResult.rows.length }}</strong> 条
+              </span>
               <span v-if="queryResult.affectedRows !== undefined" style="margin-left: 10px;">
-                影响行数: {{ queryResult.affectedRows }}
+                影响行数: <strong style="color: var(--neon-yellow);">{{ queryResult.affectedRows }}</strong>
+              </span>
+              <span v-if="totalPages > 1" style="margin-left: 10px; color: var(--color-text-secondary);">
+                第 <strong style="color: var(--neon-pink);">{{ currentPage }}</strong> / {{ totalPages }} 页
               </span>
             </div>
             <div class="result-actions">
@@ -294,7 +319,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(row, index) in queryResult.rows" :key="index">
+                <tr v-for="(row, index) in paginatedRows" :key="index">
                   <td v-for="col in queryResult.columns" :key="col">
                     <span v-if="row[col] === null" class="null-value">NULL</span>
                     <span v-else>{{ row[col] }}</span>
@@ -307,6 +332,62 @@
               <i class="i-mdi-information-outline" />
               <span>查询无结果</span>
             </div>
+          </div>
+          
+          <!-- 分页控件 -->
+          <div v-if="totalPages > 1" class="result-pagination">
+            <el-button
+              size="small"
+              :disabled="currentPage === 1"
+              @click="currentPage = 1"
+            >
+              <i class="i-mdi-page-first" /> 首页
+            </el-button>
+            <el-button
+              size="small"
+              :disabled="currentPage === 1"
+              @click="currentPage--"
+            >
+              <i class="i-mdi-chevron-left" /> 上一页
+            </el-button>
+            
+            <div class="pagination-info">
+              <el-input-number
+                v-model="currentPage"
+                :min="1"
+                :max="totalPages"
+                size="small"
+                style="width: 100px;"
+              />
+              <span style="margin-left: 8px;">/ {{ totalPages }} 页</span>
+              <el-select
+                v-model="maxRows"
+                size="small"
+                style="width: 120px; margin-left: 16px;"
+                @change="handlePageSizeChange"
+              >
+                <el-option label="50 条/页" :value="50" />
+                <el-option label="100 条/页" :value="100" />
+                <el-option label="200 条/页" :value="200" />
+                <el-option label="500 条/页" :value="500" />
+                <el-option label="1000 条/页" :value="1000" />
+              </el-select>
+            </div>
+            
+            <el-button
+              size="small"
+              :disabled="currentPage === totalPages"
+              @click="currentPage++"
+            >
+              下一页 <i class="i-mdi-chevron-right" />
+            </el-button>
+            <el-button
+              size="small"
+              :disabled="currentPage === totalPages"
+              @click="currentPage = totalPages"
+            >
+              末页 <i class="i-mdi-page-last" />
+            </el-button>
           </div>
         </div>
         
@@ -562,8 +643,25 @@ const filteredTables = computed(() => {
 // SQL查询
 const sqlInput = ref('')
 const queryResult = ref<MySQLQueryResult | null>(null)
+const queryError = ref<string>('')
 const maxRows = ref(200)
 const queryHistory = ref<string[]>([])
+
+// ⚡ 分页状态
+const currentPage = ref(1)
+const totalRows = ref(0)
+
+// 计算分页数据（后端已分页，直接使用）
+const paginatedRows = computed(() => {
+  if (!queryResult.value) return []
+  return queryResult.value.rows
+})
+
+// 计算总页数（基于真实总数）
+const totalPages = computed(() => {
+  if (totalRows.value === 0) return 0
+  return Math.ceil(totalRows.value / maxRows.value)
+})
 
 // SQL片段
 const customSnippets = ref<SqlSnippet[]>([])
@@ -1099,7 +1197,40 @@ function executeCreateTableSQL() {
 
 // ============ SQL查询 ============
 
-async function executeQuery() {
+// 获取查询总数
+async function fetchTotalCount(sql: string) {
+  try {
+    // 从SELECT语句构造COUNT查询
+    // 移除ORDER BY子句（可能影响性能）
+    let countSql = sql.replace(/ORDER\s+BY\s+[^;]+/gi, '').trim()
+    
+    // 移除LIMIT子句
+    countSql = countSql.replace(/LIMIT\s+\d+(\s*,\s*\d+)?/gi, '').trim()
+    
+    // 构造COUNT查询
+    if (countSql.match(/^SELECT\s+/i)) {
+      countSql = countSql.replace(/^SELECT\s+.*?\s+FROM\s+/i, 'SELECT COUNT(*) as total FROM ')
+    } else {
+      return 0
+    }
+    
+    const result = await (window.electron as any).invoke(
+      'mysql:query',
+      countSql,
+      1,
+      selectedDatabase.value
+    )
+    
+    if (result.success && result.data.rows.length > 0) {
+      return result.data.rows[0].total || 0
+    }
+  } catch (error) {
+    console.error('获取总数失败:', error)
+  }
+  return 0
+}
+
+async function executeQuery(page = 1) {
   if (!window.electron || !(window.electron as any).invoke) {
     ElMessage.error('MySQL功能仅在Electron版本中可用')
     return
@@ -1118,15 +1249,48 @@ async function executeQuery() {
   mysqlLoading.value = true
   
   try {
+    // 检查是否是SELECT查询
+    const trimmedSql = sqlInput.value.trim()
+    const isSelectQuery = /^SELECT\s+/i.test(trimmedSql)
+    
+    let finalSql = trimmedSql
+    
+    if (isSelectQuery) {
+      // SELECT查询：添加LIMIT分页
+      currentPage.value = page
+      
+      // 如果是第一页，获取总数
+      if (page === 1) {
+        totalRows.value = await fetchTotalCount(trimmedSql)
+      }
+      
+      // 移除已有的LIMIT子句
+      let baseSql = trimmedSql.replace(/LIMIT\s+\d+(\s*,\s*\d+)?/gi, '').trim()
+      if (baseSql.endsWith(';')) {
+        baseSql = baseSql.slice(0, -1)
+      }
+      
+      // 添加新的LIMIT子句
+      const offset = (page - 1) * maxRows.value
+      finalSql = `${baseSql} LIMIT ${offset}, ${maxRows.value}`
+    }
+    
     const result = await (window.electron as any).invoke(
       'mysql:query',
-      sqlInput.value,
-      maxRows.value,
+      finalSql,
+      maxRows.value,  // 这个参数现在主要用于非SELECT查询
       selectedDatabase.value
     )
     
     if (result.success) {
       queryResult.value = result.data
+      queryError.value = ''  // 清除错误信息
+      
+      // 对于非SELECT查询，使用返回的行数
+      if (!isSelectQuery) {
+        currentPage.value = 1
+        totalRows.value = result.data.rows.length
+      }
       
       // 添加到历史记录
       const trimmedQuery = sqlInput.value.trim().substring(0, 100)
@@ -1141,15 +1305,50 @@ async function executeQuery() {
       
       ElMessage.success('查询完成')
     } else {
-      ElMessage.error('查询失败: ' + result.error)
+      // ⚡ 设置错误信息到页面显示
+      queryError.value = result.error || '未知错误'
+      
+      // ⚡ 详细的错误提示
+      ElMessage({
+        message: `SQL 查询错误：${result.error}`,
+        type: 'error',
+        duration: 5000,
+        showClose: true,
+      })
+      
+      // 在控制台也输出详细错误
+      console.error('SQL Error:', {
+        sql: sqlInput.value,
+        error: result.error,
+        database: selectedDatabase.value
+      })
     }
   } catch (error: any) {
     console.error('Query error:', error)
-    ElMessage.error('查询失败: ' + error.message)
+    queryError.value = error.message || '查询异常'
+    ElMessage({
+      message: `查询异常：${error.message}`,
+      type: 'error',
+      duration: 5000,
+      showClose: true,
+    })
   } finally {
     mysqlLoading.value = false
   }
 }
+
+// ⚡ 分页大小变化处理
+function handlePageSizeChange() {
+  // 每页条数改变时，从第一页重新查询
+  executeQuery(1)
+}
+
+// 监听页码变化
+watch(currentPage, (newPage) => {
+  if (queryResult.value && sqlInput.value.trim()) {
+    executeQuery(newPage)
+  }
+})
 
 function selectHistoryQuery(query: string) {
   sqlInput.value = query
@@ -1163,6 +1362,9 @@ async function clearQueryHistory() {
 
 function clearQueryResult() {
   queryResult.value = null
+  // ⚡ 重置分页状态
+  currentPage.value = 1
+  totalRows.value = 0
 }
 
 function exportResultAsCSV() {
@@ -1644,6 +1846,80 @@ onMounted(async () => {
   background: rgba(0, 0, 0, 0.7) !important;
 }
 
+/* 错误显示 */
+.query-error {
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, rgba(255, 56, 132, 0.08) 0%, rgba(255, 56, 132, 0.03) 100%);
+  border: 2px solid rgba(255, 56, 132, 0.4);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(255, 56, 132, 0.15);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.query-error__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(255, 56, 132, 0.15);
+  border-bottom: 1px solid rgba(255, 56, 132, 0.3);
+  color: var(--neon-pink);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.query-error__header i {
+  font-size: 18px;
+}
+
+.query-error__content {
+  padding: 16px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.query-error__content pre {
+  margin: 0;
+  padding: 0;
+  color: var(--neon-pink);
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* 错误内容滚动条 */
+.query-error__content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.query-error__content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.query-error__content::-webkit-scrollbar-thumb {
+  background: rgba(255, 56, 132, 0.5);
+  border-radius: 3px;
+}
+
+.query-error__content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 56, 132, 0.7);
+}
+
 .result-section {
   flex: 1;
   display: flex;
@@ -1776,6 +2052,36 @@ onMounted(async () => {
   color: #888888;
   font-style: italic;
   font-weight: 400;
+}
+
+/* ⚡ 分页控件样式 */
+.result-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  margin-top: 16px;
+  background: rgba(33, 230, 255, 0.05);
+  border: 1px solid rgba(33, 230, 255, 0.2);
+  border-radius: var(--radius-md);
+}
+
+.pagination-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 0 16px;
+}
+
+.result-pagination .el-button {
+  min-width: 80px;
+}
+
+.result-pagination .el-button:disabled {
+  opacity: 0.4;
 }
 
 /* Element Plus 选择器样式增强 */

@@ -31,7 +31,6 @@ import IPQuery from '@/pages/tools/IPQuery/Index.vue'
 import SSH from '@/pages/tools/SSH/Index.vue'
 import MySQL from '@/pages/tools/mysql/Index.vue'
 import Redis from '@/pages/tools/redis/Index.vue'
-import CommandHistory from '@/pages/tools/CommandHistory/Index.vue'
 import Knowledge from '@/pages/tools/Knowledge/Index.vue'
 import Snippets from '@/pages/tools/Snippets/Index.vue'
 import Entertainment from '@/pages/tools/Entertainment/Index.vue'
@@ -52,6 +51,7 @@ import ImageCropper from '@/pages/tools/ImageCropper/Index.vue'
 import FileHash from '@/pages/tools/FileHash/Index.vue'
 import Calculator from '@/pages/tools/Calculator/Index.vue'
 import TimeCalculator from '@/pages/tools/TimeCalculator/Index.vue'
+import Base64Image from '@/pages/tools/Base64Image/Index.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -386,6 +386,17 @@ const routes: RouteRecordRaw[] = [
           category: '图片工具',
         }
       },
+      {
+        path: 'tools/base64-image',
+        name: 'Base64Image',
+        component: Base64Image,
+        meta: {
+          title: 'Base64 图片转换',
+          description: '图片与 Base64 互转，支持拖拽上传和直接下载',
+          icon: 'i-mdi-image-filter-center-focus',
+          category: '图片工具',
+        }
+      },
       
       // ========== Java 工具 ==========
       {
@@ -475,17 +486,6 @@ const routes: RouteRecordRaw[] = [
           title: 'Redis 管理',
           description: '连接Redis数据库，执行命令和管理键值',
           icon: 'i-mdi-database-clock',
-          category: '网络工具',
-        }
-      },
-      {
-        path: 'tools/command-history',
-        name: 'CommandHistory',
-        component: CommandHistory,
-        meta: {
-          title: '命令历史',
-          description: '终端命令历史管理和收藏夹',
-          icon: 'i-mdi-history',
           category: '网络工具',
         }
       },
