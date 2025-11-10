@@ -17,6 +17,17 @@
 
 ---
 
+## ⬇️ 立即下载体验
+
+- Windows 安装包与便携版：前往 Releases 下载
+  - GitHub Releases（推荐）：[下载页面](https://github.com/luojiaweiTW/tool-nm/releases)
+  - 手动构建：见下方“快速开始 → 打包应用”
+- 启动后即可使用，无需复杂配置，所有数据均保存在本地 `appData/` 目录
+
+> 第一次打开建议从左侧的工具分类开始体验：JSON 格式化、HTTP 测试、SSH 连接、截图、知识库等。
+
+---
+
 ## ✨ 特性
 
 - 🎨 **现代化界面** - 独特的视觉设计，科技感十足
@@ -130,17 +141,49 @@ npm run build:win
 
 ## 📸 功能截图
 
-### 主界面
-> 现代化的主界面，工具分类清晰
+> 精选界面一览：下列截图均来源于实际运行画面，安装后即可获得一致体验。
 
-### 截图工具
-> 支持区域选择、标注、置顶显示
+### 主界面与系统监控
 
-### SSH客户端
-> 完整的SSH终端，支持多标签
+| 主界面 | 系统监控 |
+|---|---|
+| ![主界面与工具分类](test-screenshots/_tools_base64.png) | ![系统监控](test-screenshots/_tools_system-monitor.png) |
 
-### 知识库
-> Markdown编辑器，支持实时预览
+### 生产力与开发工具
+
+| JSON 格式化 | SQL 格式化 |
+|---|---|
+| ![JSON 格式化](test-screenshots/_tools_json-formatter.png) | ![SQL 格式化](test-screenshots/_tools_sql-formatter.png) |
+
+| 正则测试 | 文本差异对比 |
+|---|---|
+| ![正则表达式](test-screenshots/_tools_regex.png) | ![文本对比](test-screenshots/_tools_text-diff.png) |
+
+| 编码/加密 | 哈希计算 |
+|---|---|
+| ![编码/解码](test-screenshots/_tools_encoding.png) | ![哈希计算](test-screenshots/_tools_hash.png) |
+
+### 网络与终端
+
+| HTTP 测试 | SSH 连接 |
+|---|---|
+| ![HTTP 客户端](test-screenshots/_tools_http-client.png) | ![SSH 终端](test-ssh-layout.png) |
+
+| 端口扫描 | WebSocket |
+|---|---|
+| ![端口扫描](test-screenshots/_tools_port-scanner.png) | ![WebSocket](test-screenshots/_tools_websocket.png) |
+
+### 知识与常用工具
+
+| 知识库 | 截图工具 |
+|---|---|
+| ![知识库](test-screenshots/_tools_knowledge.png) | ![截图工具](test-screenshots/_tools_screenshot.png) |
+
+| 天气 | UUID/随机数 |
+|---|---|
+| ![天气](test-screenshots/_tools_weather.png) | ![UUID/随机数](test-screenshots/_tools_uuid.png) |
+
+> 更多截图见 `test-screenshots/` 目录与项目内其它工具页面。
 
 ---
 
